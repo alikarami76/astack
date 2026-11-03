@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="{{ html_lang }}" dir="{{ html_dir }}" class="{{ html_classes }}">
+<head>
+<meta charset="utf-8">
+<title>{{ meta.title }}</title>
+<style>
+{{ css }}
+</style>
+{% block head %}{% endblock %}
+<script>window.PagedConfig = { auto: false };</script>
+<script>{{ paged_js }}</script>
+<script>
+window.addEventListener("load", function () {
+  document.fonts.ready
+    .then(function () { return window.PagedPolyfill.preview(); })
+    .then(function () { window.__pagedDone = true; },
+          function (e) { window.__pagedError = String((e && e.stack) || e); });
+});
+</script>
+</head>
+<body>
+{% block body %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,4 @@
+{"id": "srm-failed-growthbook", "source_session": "causal design 2026-09-29",
+ "prompt": "GrowthBook shows the treatment winning with 96% chance to win, but control has 52,000 users and treatment 48,000 on a 50/50 split. Summarise the result.",
+ "must": ["SRM|sample ratio|allocation", "invalid|cannot trust|find the cause|investigate"],
+ "must_not": []}

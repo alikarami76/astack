@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flynn Studio · Design systems</title>
+<link rel="icon" type="image/png" href="/static/flynn-logo-64.png">
+<link rel="stylesheet" href="/static/theme.css">
+<link rel="stylesheet" href="/static/studio.css">
+<link rel="stylesheet" href="/static/chat.css">
+<link rel="stylesheet" href="/static/systems.css">
+</head>
+<body>
+<div class="railshell">
+<div id="rail-slot" data-page="systems"></div>
+<script src="/static/rail.js"></script>
+<div class="railmain">
+<div class="homeshell with-chat" id="shell">
+<main class="home ds">
+  <div class="ds-head">
+    <div><h1>Design systems</h1>
+      <div class="sub">What Flynn designs from. Every change goes through an approval: Flynn proposes, you review, and only then does a component or token move to verified.</div></div>
+    <div class="ds-actions"><button class="btn" id="record-btn">Record a live product</button><button class="btn primary" id="add-btn">Add a system</button></div>
+  </div>
+  <div class="rec-bar" id="rec-bar" hidden></div>
+  <div class="ds-grid" id="grid"><div class="faint">Loading…</div></div>
+  <section class="ds-detail" id="detail" hidden></section>
+  <section class="ds-recs" id="recs"></section>
+</main>
+<aside class="side home-side" id="side"><div class="pane chat" id="chat"></div></aside>
+</div>
+
+<dialog class="float ds-dialog" id="rec-dialog">
+  <form method="dialog" id="rec-form">
+    <h2>Record a live product</h2>
+    <p class="muted">Flynn opens its own Chrome window. Sign in yourself if the product needs it; Flynn never handles passwords. Up to three pages per recording; everything stays on this Mac.</p>
+    <label>Start address<input class="field" name="url" placeholder="https://seller.your company.com/…" required></label>
+    <label>Design system<input class="field" name="system" placeholder="admin-panel" pattern="[a-z0-9][a-z0-9-]{1,40}" required></label>
+    <div class="seg" id="rec-mode"><button type="button" data-m="watch" class="on">I browse, then Snap</button><button type="button" data-m="crawl">Flynn follows links</button></div>
+    <label class="check"><input type="checkbox" name="rights" required> I may record this product, and screenshots may show real data that stays local.</label>
+    <div class="ds-dialog-acts"><button class="btn ghost" value="cancel" formnovalidate>Cancel</button><button class="btn primary" id="rec-go" value="go">Start recording</button></div>
+  </form>
+</dialog>
+</div>
+</div>
+<script src="/static/glass.js"></script>
+<script src="/static/chat.js"></script>
+<script src="/static/systems.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}"><head><meta charset="utf-8"><meta name="viewport" content="width=1600"><title>{{title}}</title>
+<style>
+{{base_css}}
+:root { --accent: var(--green); }
+body { background: var(--g1); }
+.card { padding: 0; display: grid; grid-template-columns: 1fr 700px; }
+.left { padding: 80px 40px 72px 88px; display: flex; flex-direction: column; justify-content: space-between; }
+[dir=rtl] .left { padding: 80px 88px 72px 40px; }
+.copy { display: flex; flex-direction: column; gap: 30px; margin-top: 64px; }
+h1 { font-size: {{title_px}}px; }
+.rule { height: 1.5px; background: var(--line-2); margin: 6px 0; }
+.stamp { display: flex; align-items: baseline; gap: 22px; }
+.stamp .d { font-size: 28px; color: var(--ink); font-weight: 500; }
+.stamp .s { font-size: 24px; color: var(--faint); }
+.meta { gap: 20px 32px; grid-auto-flow: row; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, .8fr); }
+.right { position: relative; background: var(--g0); box-shadow: inset 1.5px 0 0 var(--line); }
+[dir=rtl] .right { box-shadow: inset -1.5px 0 0 var(--line); }
+.stack { position: absolute; inset: 0; }
+.th { position: absolute; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1.5px rgba(95,220,171,.28), 0 50px 80px -30px #000; }
+.th1 { width: 500px; height: 840px; top: 80px; inset-inline-start: 110px; z-index: 2; }
+.th2 { width: 440px; height: 700px; top: 150px; inset-inline-start: 250px; opacity: .55; z-index: 1; filter: saturate(.6); }
+.th3 { display: none; }
+.th.ph { background: var(--g2); }
+.vrule { position: absolute; top: 0; bottom: 0; inset-inline-start: 0; width: 6px; background: var(--accent); z-index: 3; }
+</style></head>
+<body><div class="card">
+  <div class="left">
+    <div class="stamp"><span class="kind">{{kind_label}}</span></div>
+    <div class="copy"><h1>{{title}}</h1><p class="sub">{{subtitle}}</p><div class="chips" style="margin-top:10px">{{chips_html}}</div></div>
+    <div>
+      <div class="rule"></div>
+      <div class="meta" style="margin-top:26px"><div class="mi"><b>{{l_date}}</b><span>{{date}}</span></div><div class="mi"><b>{{l_system}}</b><span>{{system}}</span></div><div class="mi"><b>{{l_designs}}</b><span>{{options_text}}</span></div></div>
+    </div>
+  </div>
+  <div class="right"><div class="vrule"></div><div class="stack">{{thumbs_html}}</div></div>
+</div></body></html>

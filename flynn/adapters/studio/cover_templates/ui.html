@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}"><head><meta charset="utf-8"><meta name="viewport" content="width=1600"><title>{{title}}</title>
+<style>
+{{base_css}}
+:root { --accent: var(--light); }
+body { background: var(--g0); }
+.card { padding: 72px 80px 64px; display: flex; flex-direction: column; }
+.mid { flex: 1; display: flex; align-items: center; }
+.top { display: grid; grid-template-columns: 1fr auto; align-items: start; }
+.copy { display: flex; flex-direction: column; gap: 26px; max-width: 1060px; }
+h1 { font-size: {{title_px}}px; }
+.side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; text-align: end; padding-top: 4px; }
+.side .sys { font-size: 24px; color: var(--ink); font-weight: 500; }
+.side .date { font-size: 21px; color: var(--faint); }
+.frames { display: flex; gap: 30px; align-items: flex-start; width: 100%; }
+.th { flex: 1 1 0; max-width: 560px; border-radius: 14px; background: var(--g2); box-shadow: 0 0 0 1.5px rgba(150,226,255,.22), 0 36px 60px -30px #000; padding-top: 34px; }
+.th::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 34px; background: var(--g3); border-bottom: 1px solid var(--line); }
+.th::after { content: ""; position: absolute; top: 12px; inset-inline-start: 16px; width: 10px; height: 10px; border-radius: 50%; background: var(--g4); box-shadow: 18px 0 0 var(--g4), 36px 0 0 var(--g4); }
+[dir=rtl] .th::after { box-shadow: -18px 0 0 var(--g4), -36px 0 0 var(--g4); }
+.th img { height: auto; aspect-ratio: {{thumb_ratio}}; background: #fff; }
+.th.ph { min-height: 340px; }
+.foot { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--line); padding-top: 26px; }
+</style></head>
+<body><div class="card">
+  <div class="top">
+    <div class="copy"><span class="kind">{{kind_label}}</span><h1>{{title}}</h1><p class="sub">{{subtitle}}</p></div>
+    <div class="side"><span class="sys">{{system}}</span><span class="date">{{date}}</span></div>
+  </div>
+  <div class="mid"><div class="frames">{{thumbs_html}}</div></div>
+    <div class="foot"><div class="chips">{{chips_html}}</div>
+      <div class="meta"><div class="mi"><span>{{options_text}}</span></div><div class="mi"><span>{{picked_text}}</span></div></div></div>
+</div></body></html>

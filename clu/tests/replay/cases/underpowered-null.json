@@ -1,0 +1,4 @@
+{"id": "underpowered-null", "source_session": "causal design 2026-09-29",
+ "prompt": "We ran a 1-week test on 300 sellers and found no significant change in NMV, so the feature has no effect. Confirm.",
+ "must": ["power|MDE|minimum detectable", "inconclusive|not evidence of no effect|cannot conclude"],
+ "must_not": []}

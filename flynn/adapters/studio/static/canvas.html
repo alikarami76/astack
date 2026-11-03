@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" style="color-scheme: dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flynn Studio · run</title>
+<link rel="icon" type="image/png" href="/static/flynn-logo-64.png">
+<link rel="stylesheet" href="/static/theme.css">
+<link rel="stylesheet" href="/static/studio.css">
+<link rel="stylesheet" href="/static/chat.css">
+</head>
+<body>
+<div id="rail-slot" data-page="canvas"></div>
+<script src="/static/rail.js"></script>
+<header class="top">
+  <button class="rail-toggle" type="button" data-rail-toggle title="Sidebar" aria-label="Open sidebar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M6 3v10"/></svg></button>
+  <a class="brand" href="/"><img class="mark" src="/static/flynn-logo.png" width="26" height="26" alt=""><span class="word">Flynn</span><span class="sub">Studio</span></a>
+  <span class="crumb"><svg class="chev" viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M3.5 1.5 7 5l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><b id="runname"></b></span>
+  <div class="grow"></div>
+  <a class="btn" id="penpot-link" target="_blank" hidden>Open in flynn desk ↗</a>
+</header>
+<div class="shell">
+  <div class="stage" id="stage">
+    <div class="world" id="world"></div>
+    <div class="zoom"><button class="btn" id="zout">−</button><span id="zval">40%</span><button class="btn" id="zin">+</button><button class="btn" id="zfit">Fit</button><button class="btn" id="z100">100%</button></div>
+    <div class="hint">Drag to pan · ⌘/Ctrl + scroll to zoom · scroll to move</div>
+  </div>
+  <aside class="side" id="side">
+    <div class="resize" id="resize"></div>
+    <div class="tabs" id="tabs" role="tablist">
+      <button role="tab" data-tab="chat" class="on"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg>Chat</button>
+      <button role="tab" data-tab="tools"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3" fill="#0b0e13"/><circle cx="10.5" cy="8" r="1.3" fill="#0b0e13"/><circle cx="7.5" cy="11.5" r="1.3" fill="#0b0e13"/></svg>Tools<span class="badge" id="tab-badge"></span></button>
+    </div>
+    <div class="panes">
+      <div class="pane chat" id="pane-chat"></div>
+      <div class="pane tools" id="pane-tools" hidden></div>
+    </div>
+  </aside>
+</div>
+<script src="/static/glass.js"></script>
+<script src="/static/chat.js"></script>
+<script src="/static/tools.js"></script>
+<script src="/static/canvas.js"></script>
+</body>
+</html>

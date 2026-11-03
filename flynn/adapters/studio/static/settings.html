@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flynn Studio · Settings</title>
+<link rel="icon" type="image/png" href="/static/flynn-logo-64.png">
+<link rel="stylesheet" href="/static/theme.css">
+<link rel="stylesheet" href="/static/studio.css">
+<link rel="stylesheet" href="/static/settings.css">
+</head>
+<body>
+<div class="railshell">
+<div id="rail-slot" data-page="settings"></div>
+<script src="/static/rail.js"></script>
+<div class="railmain">
+
+<main class="settings">
+  <div class="settings-head"><h1>Settings</h1><p>How Studio's AI runs, what it may spend, and which parts of Studio are on.</p></div>
+  <div class="banner" id="busy" hidden></div>
+
+  <section class="block" id="connect" hidden>
+    <div class="block-head row-head"><div><h2>Your computer</h2><p>Flynn's AI runs on your own Mac, with your own Claude account. The flynn Studio agent keeps it connected while you work. Set it up once.</p></div><span class="chip" id="agent-state">Checking…</span></div>
+    <ol class="steps">
+      <li><div class="step-t"><b>Create your connection command</b><span>It is for you only; creating a new one stops the old one.</span></div>
+        <div class="cmd" id="agent-cmd-row"><button class="btn primary sm" id="agent-make">Create my command</button></div></li>
+      <li><div class="step-t"><b>Paste it in Terminal and press Return</b><span>Everything it installs comes from this server's own cache, inside the company network: flynn's Python packages, Claude Code, and Node.js if your Mac has none (kept private to flynn, so your own Node and npm settings stay as they are). It asks you to sign in to Claude if you aren't yet, and keeps the agent running whenever you're logged in. Nothing to keep open. Apps you build install their packages through the same cache.</span></div></li>
+      <li><div class="step-t"><b>Come back here</b><span>The status above turns green by itself, and Flynn answers in every chat.</span></div></li>
+    </ol>
+    <p class="note" id="team-who"></p>
+  </section>
+
+  <section class="block">
+    <div class="block-head row-head"><div><h2>Health</h2><p>Live checks of what the chat needs.</p></div><button class="btn sm" id="recheck">Check again</button></div>
+    <div class="checks" id="checks"><div class="faint">Checking…</div></div>
+  </section>
+
+  <details class="block setup" id="setup">
+    <summary class="block-head"><h2>Set up</h2><p>Run these once in Terminal on this Mac. Studio's chat uses your own Claude sign-in and flynn's agent.</p></summary>
+    <ol class="steps">
+      <li><div class="step-t"><b>Install the Claude Agent SDK</b><span>It also brings the <code>claude</code> command if you don't have it.</span></div>
+        <div class="cmd"><code>python3 -m pip install --user "claude-agent-sdk&gt;=0.1"</code><button class="btn sm" data-copy>Copy</button></div></li>
+      <li><div class="step-t"><b>Sign in to Claude</b><span>Skipped automatically when you're already signed in.</span></div>
+        <div class="cmd"><code>claude auth status || claude auth login</code><button class="btn sm" data-copy>Copy</button></div></li>
+      <li><div class="step-t"><b>Start Studio</b><span>Opens http://127.0.0.1:8770. Restart it after updating flynn.</span></div>
+        <div class="cmd"><code>python3 "$HOME/agent-stack/flynn/adapters/studio/studio.py" serve</code><button class="btn sm" data-copy>Copy</button></div></li>
+    </ol>
+  </details>
+
+  <section class="block">
+    <div class="block-head"><h2>How Flynn's AI runs</h2><p>Claude through the Agent SDK is the default and runs Flynn's full process with its specialists. A model API runs Flynn with another provider's model: it designs and reviews with Studio's design tools, without specialists or a shell.</p></div>
+    <div class="seg" id="engine">
+      <button data-v="sdk">Agent SDK</button><button data-v="cli">Claude CLI</button><button data-v="api">Model API</button><button data-v="off">Off</button>
+    </div>
+    <p class="note" id="engine-note"></p>
+    <div class="api-box" id="api-box" hidden>
+      <div class="api-row"><label>Provider<select class="field" id="api-provider"></select></label>
+        <label class="grow">Model<input class="field" id="api-model" list="api-models" placeholder="model id" autocomplete="off"><datalist id="api-models"></datalist></label>
+        <button class="btn sm" id="api-load" type="button">Load models</button></div>
+      <div class="api-row" id="api-base-row" hidden><label class="grow">API address<input class="field" id="api-base" placeholder="https://…/v1" autocomplete="off"></label></div>
+      <div class="api-row" id="api-key-row"><label class="grow">API key<input class="field" id="api-key" type="password" autocomplete="off" placeholder="paste the key"></label>
+        <button class="btn sm" id="api-key-save" type="button">Save key</button><span class="faint" id="api-key-state"></span></div>
+      <div class="api-row"><label>Price in $/M<input class="field num" id="api-pin" inputmode="decimal" placeholder="input"></label>
+        <label>&nbsp;<input class="field num" id="api-pout" inputmode="decimal" placeholder="output"></label>
+        <span class="grow"></span><button class="btn primary sm" id="api-test" type="button">Test</button><span class="faint" id="api-test-state"></span></div>
+      <p class="note" id="api-note"></p>
+    </div>
+  </section>
+
+  <section class="block" id="mcp">
+    <div class="block-head row-head"><div><h2>Connect an AI (MCP)</h2><p>Let another AI app (Claude Code, Claude Desktop, Cursor, Codex, ChatGPT…) create and change designs in Studio through its MCP server. Each app gets its own token; it works only inside your own runs, and design systems stay read-only.</p></div></div>
+    <div class="api-row"><label class="grow">App name<input class="field" id="mcp-name" placeholder="e.g. Cursor on my Mac" autocomplete="off"></label><button class="btn primary sm" id="mcp-make" type="button">Create a connection</button></div>
+    <div id="mcp-new" hidden></div>
+    <div class="mcp-list" id="mcp-list"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Effort</h2><p>Each level sets flynn's model and effort, which models its specialists use, how many review rounds it runs, and a spending cap per message. The chat remembers your choice per conversation; this is the default for new ones. Leave a cap empty for no cap. Changes save as you make them.</p></div>
+    <div class="efforts" id="efforts"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Modules</h2><p>Each new part of Studio arrives behind its own switch, so the way you work today keeps working until you've tried the new one.</p></div>
+    <div class="modules" id="modules"></div>
+  </section>
+</main>
+</div>
+</div>
+<script src="/static/glass.js"></script>
+<script src="/static/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{"type": "user", "timestamp": "2026-09-01T10:00:00Z", "version": "2.1.280", "message": {"role": "user", "content": "Build the report"}, "sessionId": "s1"}
+{"type": "ai-title", "aiTitle": "Report building", "sessionId": "s1"}
+{"type": "assistant", "timestamp": "2026-09-01T10:00:05Z", "message": {"id": "m1", "model": "claude-opus-5-5", "usage": {"input_tokens": 2, "output_tokens": 5, "cache_read_input_tokens": 0, "cache_creation_input_tokens": 1000, "cache_creation": {"ephemeral_5m_input_tokens": 1000, "ephemeral_1h_input_tokens": 0}}, "content": [{"type": "thinking", "thinking": ""}]}, "sessionId": "s1"}
+{"type": "assistant", "timestamp": "2026-09-01T10:00:06Z", "message": {"id": "m1", "model": "claude-opus-5-5", "usage": {"input_tokens": 2, "output_tokens": 50, "cache_read_input_tokens": 0, "cache_creation_input_tokens": 1000, "cache_creation": {"ephemeral_5m_input_tokens": 1000, "ephemeral_1h_input_tokens": 0}}, "content": [{"type": "tool_use", "id": "t1", "name": "Bash", "input": {"command": "cd \"/x y\" && ls -la"}}]}, "sessionId": "s1"}
+{"type": "user", "timestamp": "2026-09-01T10:00:07Z", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t1", "is_error": true, "content": "Exit code 1"}]}, "sessionId": "s1"}
+{"type": "assistant", "timestamp": "2026-09-01T10:00:09Z", "message": {"id": "m2", "model": "claude-opus-5-5", "usage": {"input_tokens": 1, "output_tokens": 20, "cache_read_input_tokens": 1000, "cache_creation_input_tokens": 200, "cache_creation": {"ephemeral_5m_input_tokens": 200, "ephemeral_1h_input_tokens": 0}}, "content": [{"type": "tool_use", "id": "t2", "name": "Agent", "input": {"subagent_type": "Explore", "prompt": "find x"}}]}, "sessionId": "s1"}
+{"type": "user", "timestamp": "2026-09-01T10:00:30Z", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t2", "content": [{"type": "text", "text": "found it"}]}]}, "sessionId": "s1"}
+{"type": "user", "timestamp": "2026-09-01T10:01:00Z", "message": {"role": "user", "content": "no, that's wrong - use the other table"}, "sessionId": "s1"}
+{"type": "user", "timestamp": "2026-09-01T10:01:10Z", "message": {"role": "user", "content": [{"type": "text", "text": "[Request interrupted by user]"}]}, "sessionId": "s1"}
+{"type": "system", "subtype": "compact_boundary", "timestamp": "2026-09-01T10:02:00Z", "compactMetadata": {"trigger": "auto"}, "sessionId": "s1"}
+{"type": "system", "subtype": "turn_duration", "durationMs": 65000, "timestamp": "2026-09-01T10:02:01Z", "sessionId": "s1"}
+this line is not json

@@ -1,0 +1,4 @@
+{"id": "staggered-twfe", "source_session": "causal design 2026-09-29",
+ "prompt": "The new pricing tool was rolled out to categories in three waves over two months. Run a two-way fixed effects regression of NMV on the rollout dummy to get its impact.",
+ "must": ["staggered|waves", "Callaway|Sun-Abraham|imputation|not.{0,20}TWFE|TWFE.{0,40}bias"],
+ "must_not": []}

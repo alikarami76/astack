@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[عنوان گزارش]</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="report.css">
+</head>
+<body>
+<!-- editorial report. Order: head, the answer (one or two sentences), key numbers, findings (claim as the
+     heading, one chart that proves it, two or three sentences, the caveat), method and definitions,
+     what this does not show, recommendations, links. Charts: adapters/html/charts.py (inline SVG).
+     Blanks stay in [brackets]. -->
+
+<header class="topbar">
+  <div class="wordmark">فروشگاه نمونه</div>
+  <div class="meta">فروشگاه نمونه · تیم محصول</div>
+</header>
+
+<main>
+<div class="col report-head" data-shot="head">
+  <div class="kind">[نوع گزارش، مثلاً تحلیل کمپین]</div>
+  <h1>[سؤال یا ادعای اصلی گزارش]</h1>
+  <div class="byline"><span>[نویسنده]</span><span>[تاریخ]</span><span>[بازهٔ داده]</span></div>
+  <div class="answer"><div class="k">خلاصه</div><p>[جواب در یک یا دو جمله، با عدد اصلی.]</p></div>
+  <div class="kpi-row">
+    <div class="kpi hot"><div class="v">[عدد]</div><div class="l">[شاخص]</div><div class="d">[تغییر نسبت به مبنا]</div></div>
+    <div class="kpi"><div class="v">[عدد]</div><div class="l">[شاخص]</div><div class="d">[تغییر]</div></div>
+    <div class="kpi"><div class="v">[عدد]</div><div class="l">[شاخص]</div><div class="d">[تغییر]</div></div>
+    <div class="kpi"><div class="v">[عدد]</div><div class="l">[شاخص]</div><div class="d">[تغییر]</div></div>
+  </div>
+</div>
+
+<section class="col" data-shot="f1">
+  <h2>یافته‌ها</h2>
+  <div class="finding">
+    <div class="n">یافتهٔ ۱</div>
+    <h3>[یافته به‌صورت یک جملهٔ ادعایی]</h3>
+    <figure class="chart">[svg from charts.py]<figcaption>[منبع و تعریف]</figcaption></figure>
+    <p>[دو یا سه جمله توضیح.]</p>
+    <p class="caveat"><b>احتیاط:</b> [محدودیت این یافته]</p>
+  </div>
+</section>
+
+<section class="col" data-shot="method">
+  <h2>روش و تعریف‌ها</h2>
+  <div class="method"><dl>
+    <dt>منبع داده</dt><dd>[جدول‌ها یا داشبورد]</dd>
+    <dt>بازه</dt><dd>[بازهٔ کمپین و مبنا]</dd>
+    <dt>تعریف‌ها</dt><dd>[شاخص‌ها]</dd>
+    <dt>روش مقایسه</dt><dd>[گروه کنترل یا مبنا]</dd>
+  </dl></div>
+  <h3>این گزارش چه چیزی را نشان نمی‌دهد</h3>
+  <ul><li>[محدودیت]</li></ul>
+</section>
+
+<section class="col" data-shot="recs">
+  <h2>پیشنهادها</h2>
+  <table class="recs">
+    <tr><th></th><th>پیشنهاد</th><th>مسئول</th></tr>
+    <tr><td>۱</td><td><b>[پیشنهاد]</b><br>[چرا، با ارجاع به یافته]</td><td>[تیم]</td></tr>
+  </table>
+  <h3>لینک‌ها</h3>
+  <ul class="links"><li><a href="#">[داشبورد یا کوئری]</a><span>[منبع]</span></li></ul>
+</section>
+
+<footer class="footer">
+  <div><div class="name">[نام]</div><div class="role">[سمت] · [واحد] · [تیم]</div></div>
+  <div class="sig">فروشگاه نمونه · تیم محصول</div>
+</footer>
+</main>
+</body>
+</html>

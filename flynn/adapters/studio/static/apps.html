@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flynn Studio · Apps</title>
+<link rel="icon" type="image/png" href="/static/flynn-logo-64.png">
+<link rel="stylesheet" href="/static/theme.css">
+<link rel="stylesheet" href="/static/studio.css">
+<link rel="stylesheet" href="/static/systems.css">
+</head>
+<body>
+<div class="railshell">
+<div id="rail-slot" data-page="apps"></div>
+<script src="/static/rail.js"></script>
+<div class="railmain">
+<main class="home">
+  <h1>Apps</h1>
+  <div class="sub">Describe an app and Flynn builds it: React and TypeScript with a live preview, every change saved as a version you can go back to. Apps live in <code>~/flynn-apps</code>, one folder (and git repo) each.</div>
+  <form class="app-new" id="new">
+    <input class="field" name="name" placeholder="name, e.g. price-checker" pattern="[a-z0-9][a-z0-9-]{1,40}" required>
+    <input class="field" name="description" placeholder="What should it do? e.g. a small tool where sellers check a price against the ceiling" required>
+    <select class="sel" name="system" style="margin:0"><option value="">No design system</option><option value="editorial">DK Editorial</option><option value="admin-panel">Admin Panel</option><option value="dk-mckinsey">DK McKinsey</option></select>
+    <button class="btn primary">Create app</button>
+  </form>
+  <div class="app-grid" id="grid"><div class="faint">Loading…</div></div>
+</main>
+</div>
+</div>
+<script src="/static/glass.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function toast(t, err) { const d = document.createElement("div"); d.className = "toast" + (err ? " err" : ""); d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 3200); }
+  async function api(path, body) {
+    const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-store" });
+    const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || r.status); return j;
+  }
+  async function load() {
+    let apps;
+    try { ({ apps } = await api("/api/apps")); }
+    catch (x) {
+      $("grid").innerHTML = `<div class="ds-detail"><b>Your apps aren't reachable right now.</b><span class="faint">${esc(x.message)}</span>
+        <a class="btn sm" href="/settings#connect">Connect your computer</a></div>`;
+      return;
+    }
+    $("grid").innerHTML = apps.length ? apps.map(a => `<a class="app-card" href="/app/${encodeURIComponent(a.name)}">
+        <span class="ds-name"><span class="dot ${a.preview && a.preview.running ? "live" : ""}"></span>${esc(a.name)}</span>
+        <p dir="auto">${esc(a.description)}</p>
+        <div class="ds-meta">${a.system ? `<span class="chip">${esc(a.system)}</span>` : ""}<span>${a.installed ? "installed" : "not installed yet"}</span>${a.head ? `<span>last change ${esc((a.head.time || "").slice(0, 10))}</span>` : ""}</div></a>`).join("")
+      : `<div class="faint">No apps yet. Name one above and describe what it should do.</div>`;
+  }
+  $("new").addEventListener("submit", async e => {
+    e.preventDefault(); const f = e.target;
+    try {
+      const a = await api("/api/apps", { name: f.name.value.trim(), description: f.description.value.trim(), system: f.system.value || null });
+      location.href = `/app/${encodeURIComponent(a.name)}?new=1`;
+    } catch (x) { toast(x.message, 1); }
+  });
+  fetch("/api/settings", { cache: "no-store" }).then(r => r.json()).then(j => { if (j.features && j.features.studio_apps === false) { $("new").hidden = true; $("grid").innerHTML = `<div class="faint">The App builder is switched off in Settings.</div>`; } else load(); }).catch(load);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+.cover { page: cover; break-after: page; padding-block-start: 60mm; }
+.cover-kicker { color: var(--color-accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.85em; margin-block: 0 1em; }
+:lang(fa) .cover-kicker { letter-spacing: 0; text-transform: none; }
+.cover-title { font-family: var(--font-display); font-size: calc(var(--text-base) * 3.2); font-weight: 800; line-height: var(--leading-tight); margin-block: 0 0.3em; }
+.cover-subtitle { font-size: calc(var(--text-base) * 1.4); color: var(--color-muted); margin-block: 0 2em; }
+.cover-meta { display: flex; gap: 1.5em; color: var(--color-muted); border-block-start: 2px solid var(--color-accent); padding-block-start: 0.8em; }
+.toc { break-after: page; }
+.toc-title { margin-block-start: 0; }
+.toc ol { list-style: none; padding: 0; margin: 0; }
+.toc li { margin-block: 0.25em; }
+.toc a { color: var(--color-text); display: flex; gap: 0.5em; }
+.toc a::after { content: target-counter(attr(href url), page); margin-inline-start: auto; color: var(--color-muted); }
+.digits-fa .toc a::after, .digits-fa-body-latin-data .toc a::after { content: target-counter(attr(href url), page, persian); }
+.toc-l1 { font-weight: 700; margin-block-start: 0.6em; }
+.toc-l2 { padding-inline-start: 1.2em; }
+.report-body > h2:first-child { margin-block-start: 0; }
+.report-body h2 { border-block-end: 1px solid var(--color-border); padding-block-end: 0.2em; }

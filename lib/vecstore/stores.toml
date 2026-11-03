@@ -1,0 +1,10 @@
+# vecstore registry: store name -> adapter file (relative to agent-stack) that defines make() -> adapter.
+# Used by `vecstore status|index|search|eval`. Plan 2 adds the remaining stores.
+[clu]
+adapter = "clu/kb/vec_adapter.py"
+
+[flynn]
+adapter = "flynn/kb/vec_adapter.py"
+
+[quorra]
+adapter = "quorra/kb/vec_adapter.py"

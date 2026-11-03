@@ -1,0 +1,9 @@
+ram.db
+ram.db-*
+runs/*/samples/
+runs/weekly.log
+runs/*/grades/
+runs/*/grades.json
+runs/*/props/
+runs/*/pdf/
+runs/*/*-pages/

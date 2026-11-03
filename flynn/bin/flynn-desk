@@ -1,0 +1,70 @@
+#!/bin/bash
+# flynn desk: start everything flynn's design app needs, and open it.
+#   flynn-desk          start what is not running, then open flynn desk in flynn's Chrome
+#   flynn-desk status   show what is running
+#   flynn-desk stop     stop flynn's chat server and Studio (the app's containers keep running; add --all to stop them)
+# Everything listens on 127.0.0.1 only. The app's secret key comes from the keychain and is never printed.
+set -u
+FLYNN="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STACK="$FLYNN/adapters/penpot/stack"
+LOGS="$HOME/.flynn/logs"
+mkdir -p "$LOGS"
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+URL="http://localhost:9001/"
+
+up()   { curl -s -m 2 -o /dev/null -w "%{http_code}" "$1" 2>/dev/null | grep -qE "^(200|302)$"; }
+say()  { printf '%-14s %s\n' "$1" "$2"; }
+
+compose() {
+  (cd "$STACK" && PENPOT_SECRET_KEY="$(security find-generic-password -s flynn-penpot -a secret-key -w)" \
+    docker compose -p flynn-penpot -f docker-compose.yaml -f docker-compose.flynn.yaml \
+      $( [ -f docker-compose.brand.yaml ] && echo "-f docker-compose.brand.yaml" ) "$@")
+}
+
+status() {
+  up http://127.0.0.1:9001/ && say "app" "running  http://localhost:9001" || say "app" "stopped"
+  up http://127.0.0.1:8772/api/health && say "chat server" "running  :8772" || say "chat server" "stopped"
+  up http://127.0.0.1:8770/ && say "studio" "running  http://127.0.0.1:8770" || say "studio" "stopped"
+  curl -s -m 1 http://127.0.0.1:9223/json/version >/dev/null && say "chrome" "running  (flynn's own profile)" || say "chrome" "closed"
+}
+
+start() {
+  if ! docker info >/dev/null 2>&1; then
+    say "docker" "starting Docker Desktop"; open -a Docker
+    for _ in $(seq 1 90); do docker info >/dev/null 2>&1 && break; sleep 2; done
+  fi
+  if ! up http://127.0.0.1:9001/; then
+    say "app" "starting containers"; compose up -d >>"$LOGS/flynn-desk.log" 2>&1
+    for _ in $(seq 1 60); do up http://127.0.0.1:9001/ && break; sleep 2; done
+  fi
+  if ! up http://127.0.0.1:8772/api/health; then
+    say "chat server" "starting"
+    nohup python3 "$FLYNN/adapters/penpot/panel/panel_server.py" serve >>"$LOGS/panel_server.out" 2>&1 &
+  fi
+  if ! up http://127.0.0.1:8770/; then
+    say "studio" "starting"
+    nohup python3 "$FLYNN/adapters/studio/studio.py" serve >>"$LOGS/studio.out" 2>&1 &
+  fi
+  sleep 1
+  if curl -s -m 1 http://127.0.0.1:9223/json/version >/dev/null; then
+    # Chrome is already open: add a tab instead of a second window
+    curl -s -m 3 -X PUT "http://127.0.0.1:9223/json/new?$URL" >/dev/null
+  else
+    python3 "$FLYNN/adapters/browser/capture.py" open --url "$URL" >/dev/null
+  fi
+  status
+}
+
+stop() {
+  pkill -f "adapters/penpot/panel/panel_server.py serve" && say "chat server" "stopped"
+  pkill -f "adapters/studio/studio.py serve" && say "studio" "stopped"
+  python3 "$FLYNN/adapters/library/builder.py" close
+  if [ "${1:-}" = "--all" ]; then compose stop >>"$LOGS/flynn-desk.log" 2>&1 && say "app" "containers stopped"; fi
+}
+
+case "${1:-start}" in
+  start) start ;;
+  status) status ;;
+  stop) shift; stop "${1:-}" ;;
+  *) echo "usage: flynn-desk [start|status|stop [--all]]"; exit 2 ;;
+esac

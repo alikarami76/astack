@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>[عنوان ارائه]</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="deck.css">
+</head>
+<body class="deck">
+<!-- editorial deck. 16:9 slides at 1280x720 CSS px; render with
+       render.py page/index.html --slides --pdf <name>.pdf
+     which writes shots/slides/NN.png (2560x1440) and a PDF with one page per slide.
+     Slide types below: title, divider, statement, shot-slide, compare, chart, numbers, closing.
+     Keep one idea per slide; the accent colour is for accents only; blanks stay in [brackets]. Components: adapters/html/components.md. -->
+<main class="deck">
+
+<section class="slide title" data-shot="slide-01">
+  <div class="wordmark">فروشگاه نمونه</div>
+  <div class="kicker">[حوزه · مثلاً سفارش و ارسال]</div>
+  <h1>[عنوان ارائه در دو خط،<br>با یک پیام روشن]</h1>
+  <p class="sub">[یک جمله: این ارائه به چه سؤالی جواب می‌دهد و از مخاطب چه تصمیمی می‌خواهد.]</p>
+  <div class="meta">[نام ارائه‌دهنده] · [تاریخ جلسه]</div>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+<section class="slide divider" data-shot="slide-02">
+  <div class="num">۰۱</div>
+  <h2>[نام بخش، مثلاً «مسئله»]</h2>
+  <p class="sub">[یک جمله دربارهٔ اینکه این بخش چه چیزی را نشان می‌دهد.]</p>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+<section class="slide statement" data-shot="slide-03">
+  <div class="kicker">[برچسب کوتاه]</div>
+  <h2>[یک جملهٔ بزرگ که اگر مخاطب فقط همین را به خاطر بسپارد کافی است.]</h2>
+  <p class="sub">[یک یا دو جملهٔ پشتیبان با عدد یا شاهد، مثلاً «در ۱۲ دسته‌بندی، زمان ارسال بین دو روش دست‌کم ۲ روز اختلاف دارد.»]</p>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+<section class="slide shot-slide" data-shot="slide-04">
+  <div class="kicker">[نام صفحه یا قابلیت]</div>
+  <h2>[آنچه در تصویر دیده می‌شود]</h2>
+  <div class="frame">
+    <div class="shot"><img src="img/[screenshot].png" alt="[توضیح تصویر]"></div>
+    <div class="cap">
+      <h3>[نکتهٔ اول]</h3>
+      <p>[یک یا دو جمله دربارهٔ بخشی از تصویر که باید دیده شود.]</p>
+      <h3>[نکتهٔ دوم]</h3>
+      <p>[یک یا دو جمله.]</p>
+    </div>
+  </div>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+<section class="slide" data-shot="slide-05">
+  <div class="kicker">[مقایسه]</div>
+  <h2>[امروز در برابر بعد از تغییر]</h2>
+  <div class="compare">
+    <div class="side"><span class="label">امروز</span>
+      <ul><li>[وضعیت فعلی، نکتهٔ اول]</li><li>[نکتهٔ دوم]</li><li>[نکتهٔ سوم]</li></ul></div>
+    <div class="side after"><span class="label">بعد از تغییر</span>
+      <ul><li>[وضعیت جدید، نکتهٔ اول]</li><li>[نکتهٔ دوم]</li><li>[نکتهٔ سوم]</li></ul></div>
+  </div>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+<section class="slide" data-shot="slide-06">
+  <div class="kicker">[داده]</div>
+  <h2>[تیتر نمودار: نتیجه را بگویید، نه نام معیار را]</h2>
+  <figure class="chart">
+    <div class="plot">[جای نمودار: SVG از charts.py]</div>
+    <figcaption>[منبع داده · بازهٔ زمانی · واحد]</figcaption>
+  </figure>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+<section class="slide" data-shot="slide-07">
+  <div class="kicker">[نتیجه]</div>
+  <h2>[سه عدد که داستان را می‌گویند]</h2>
+  <div class="numbers">
+    <div class="n key"><div class="big">[۹۲٪]</div><p>[معنی عدد در یک جمله]</p></div>
+    <div class="n"><div class="big">[۱٬۲۰۰]</div><p>[معنی عدد در یک جمله]</p></div>
+    <div class="n"><div class="big">[۵۰ هزار]</div><p>[معنی عدد در یک جمله]</p></div>
+  </div>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+<section class="slide" data-shot="slide-08">
+  <div class="kicker">قدم‌های بعدی</div>
+  <h2>[تصمیمی که از این جلسه می‌خواهیم]</h2>
+  <ol class="next-list">
+    <li><b>[قدم بعدی محصول]</b><span>مسئول: [نام] · زمان: [تاریخ]</span></li>
+    <li><b>[قدم بعدی محصول]</b><span>مسئول: [نام] · زمان: [تاریخ]</span></li>
+    <li><b>[قدم بعدی محصول]</b><span>مسئول: [نام] · زمان: [تاریخ]</span></li>
+  </ol>
+  <div class="foot">فروشگاه نمونه · تیم محصول</div>
+</section>
+
+</main>
+</body>
+</html>

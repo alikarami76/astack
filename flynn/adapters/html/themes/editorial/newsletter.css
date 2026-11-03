@@ -1,0 +1,36 @@
+/* editorial newsletter: a 640px right-to-left digest. Loaded after style.css; uses only its :root tokens.
+   Render with render.py <page> --width 720 --pad 0, then email_pack.py <run> to build an Outlook-ready .eml of the
+   section PNGs (Outlook strips modern CSS, so the email itself is images plus alt text and links). */
+
+body.newsletter { background: var(--soft); }
+main.nl { max-width: 640px; margin: 0 auto; padding: 32px 0 48px; }
+.nl > [data-shot] { background: var(--surface); padding: 32px 36px; }
+.nl > [data-shot] + [data-shot] { border-top: 1px solid var(--line); }
+
+.nl-head { display: flex; justify-content: space-between; align-items: flex-end; padding-top: 28px !important; padding-bottom: 24px !important; border-radius: var(--r) var(--r) 0 0; }
+.nl-head .wordmark { font-size: 24px; }
+.nl-head .issue { text-align: left; }
+.nl-head .issue b { display: block; font-size: 16px; color: var(--ink); }
+.nl-head .issue span { font-size: 13px; color: var(--muted); }
+
+.nl .kicker { color: var(--accent); font-weight: 800; font-size: 13px; margin-bottom: 8px; }
+.nl-lead h1 { font-size: 30px; line-height: 1.45; font-weight: 900; margin: 0 0 12px; }
+.nl-lead p { font-size: 16px; line-height: 1.9; color: var(--text); margin: 0 0 14px; }
+.nl-lead .shot { margin: 8px 0 16px; }
+.nl-lead .shot img { border-radius: 12px; }
+
+.nl-story h2 { font-size: 20px; line-height: 1.6; font-weight: 800; margin: 0 0 6px; }
+.nl-story p { font-size: 15.5px; line-height: 1.9; color: var(--text); margin: 0 0 10px; }
+.nl .more { font-size: 14px; font-weight: 700; color: var(--blue); }
+.nl .more::after { content: " ←"; }
+
+.nl-numbers h2 { font-size: 18px; font-weight: 800; margin: 0 0 16px; }
+.nl-numbers .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.nl-numbers .n { border-top: 3px solid var(--ink); padding-top: 12px; }
+.nl-numbers .n.key { border-top-color: var(--accent); }
+.nl-numbers .big { font-size: 28px; line-height: 1.2; font-weight: 900; color: var(--ink); }
+.nl-numbers .n.key .big { color: var(--accent); }
+.nl-numbers p { font-size: 13px; line-height: 1.7; color: var(--muted); margin: 6px 0 0; }
+
+.nl-foot { border-radius: 0 0 var(--r) var(--r); font-size: 13px; line-height: 1.8; color: var(--muted); }
+.nl-foot b { color: var(--ink); }

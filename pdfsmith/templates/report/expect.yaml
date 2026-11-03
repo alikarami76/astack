@@ -1,0 +1,6 @@
+pages: null
+example:
+  en:
+    pages: [3, 4]
+  fa:
+    pages: [4, 5]

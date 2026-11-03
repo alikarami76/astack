@@ -1,0 +1,39 @@
+/* Title card base: Studio's own tokens (static/theme.css) and fonts, shared by every cover template.
+   Fonts sit next to index.html (copied by cover.py) so the card is self-contained. */
+@font-face { font-family: "Geist"; src: url("geist.woff2") format("woff2"); font-weight: 100 900; }
+@font-face { font-family: "your company"; src: url("vazirmatn-variable.woff2") format("woff2"); font-weight: 100 1000; }
+:root {
+  --g0: #0b0e13; --g1: #10151b; --g2: #141a21; --g3: #1c232c; --g4: #2a3541;
+  --ink: #eef6fb; --text: #c9d4dd; --muted: #aab7c4; --faint: #7d8a97;
+  --light: #8fe3ff; --ice: #e4f7ff; --amber: #f3b26b; --green: #5fdcab;
+  --line: rgba(170, 200, 225, .12); --line-2: rgba(170, 200, 225, .22);
+  --sans: "Geist", "your company", system-ui, sans-serif; --fa: "your company", "Geist", system-ui, sans-serif;
+  --accent: var(--light);
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { width: 1600px; height: 1000px; overflow: hidden; }
+body { font-family: var(--sans); background: var(--g0); color: var(--text); -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11"; position: relative; }
+[dir=rtl] body { font-family: var(--fa); }
+.card { position: absolute; inset: 0; padding: 80px; }
+.kind { display: inline-flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--accent); }
+.kind::before { content: ""; width: 28px; height: 4px; background: var(--accent); border-radius: 2px; }
+[dir=rtl] .kind { letter-spacing: 0; font-size: 26px; text-transform: none; }
+h1 { font-weight: 640; letter-spacing: -.035em; line-height: 1.04; color: var(--ink); text-wrap: balance; overflow-wrap: anywhere; }
+[dir=rtl] h1 { letter-spacing: 0; line-height: 1.25; font-weight: 700; }
+.sub { font-size: 30px; line-height: 1.4; color: var(--muted); font-weight: 400; text-wrap: pretty; }
+[dir=rtl] .sub { font-size: 30px; line-height: 1.65; }
+.chips { display: flex; flex-wrap: wrap; gap: 12px; }
+.chip { font-size: 21px; line-height: 1; padding: 11px 18px; border-radius: 999px; color: var(--text);
+  box-shadow: inset 0 0 0 1.5px var(--line-2); white-space: nowrap; }
+.meta { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, auto); gap: 20px 56px; align-items: start; }
+.meta .mi { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.meta .mi b { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+[dir=rtl] .meta .mi b { letter-spacing: 0; font-size: 18px; text-transform: none; }
+.meta .mi span { font-size: 24px; color: var(--ink); font-weight: 500; overflow-wrap: anywhere; }
+.th { position: relative; overflow: hidden; background: var(--g2); }
+.th img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.th.ph { box-shadow: inset 0 0 0 1.5px var(--line-2); min-height: 280px; min-width: 420px; }
+
+.sub:empty, .chips:empty { display: none; }

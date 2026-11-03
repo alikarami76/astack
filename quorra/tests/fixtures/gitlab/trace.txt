@@ -1,0 +1,7 @@
+section_start:1:step_script
+[0K[32;1m$ yarn test[0m
+FAIL src/tags.test.ts
+  Expected: 2
+  Received: 3
+section_end:2:step_script
+[0K

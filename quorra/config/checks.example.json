@@ -1,0 +1,192 @@
+{
+  "profiles": {
+    "php": {
+      "install": null,
+      "install_note": "no local install: the framework's composer scripts and tests need its test image (Docker), so the PHPUnit checks are reported as not_run and left to CI",
+      "checks": [
+        {
+          "name": "php-lint",
+          "cmd": [
+            "php",
+            "-l",
+            "{file}"
+          ],
+          "files": "\\.php$"
+        },
+        {
+          "name": "phpunit-unit",
+          "cmd": [
+            "php",
+            "vendor/bin/phpunit",
+            "--testsuite",
+            "Unit",
+            "--exclude-group",
+            "skip"
+          ],
+          "needs": [
+            "deps",
+            "docker"
+          ],
+          "no_tests": "No tests executed"
+        },
+        {
+          "name": "phpunit-integration",
+          "cmd": [
+            "php",
+            "vendor/bin/phpunit",
+            "--testsuite",
+            "Integration"
+          ],
+          "needs": [
+            "deps",
+            "docker",
+            "db"
+          ],
+          "no_tests": "No tests executed"
+        }
+      ]
+    },
+    "php-api-app": {
+      "install": null,
+      "install_note": "no local install: the framework's composer scripts and tests need its test image (Docker), so the PHPUnit checks are reported as not_run and left to CI",
+      "checks": [
+        {
+          "name": "php-lint",
+          "cmd": [
+            "php",
+            "-l",
+            "{file}"
+          ],
+          "files": "\\.php$"
+        },
+        {
+          "name": "phpunit-unit",
+          "cmd": [
+            "php",
+            "vendor/bin/phpunit",
+            "tests/Unit",
+            "--exclude-group",
+            "skip"
+          ],
+          "needs": [
+            "deps",
+            "docker"
+          ],
+          "no_tests": "No tests executed"
+        },
+        {
+          "name": "phpunit-integration",
+          "cmd": [
+            "php",
+            "vendor/bin/phpunit",
+            "tests/Integration"
+          ],
+          "needs": [
+            "deps",
+            "docker",
+            "db"
+          ],
+          "no_tests": "No tests executed"
+        }
+      ]
+    },
+    "ts": {
+      "install": [
+        "npx",
+        "--yes",
+        "yarn@1.22.22",
+        "install",
+        "--frozen-lockfile",
+        "--non-interactive",
+        "--ignore-engines"
+      ],
+      "checks": [
+        {
+          "name": "oxlint-changed",
+          "cmd": [
+            "npx",
+            "--yes",
+            "yarn@1.22.22",
+            "oxlint",
+            "--max-warnings=0",
+            "{files}"
+          ],
+          "files": "^src/.*\\.(ts|tsx|js|jsx)$",
+          "needs": [
+            "deps"
+          ],
+          "timeout": 900
+        },
+        {
+          "name": "tsc",
+          "cmd": [
+            "npx",
+            "--yes",
+            "yarn@1.22.22",
+            "run",
+            "ts-check"
+          ],
+          "needs": [
+            "deps"
+          ],
+          "timeout": 1800
+        },
+        {
+          "name": "jest-related",
+          "cmd": [
+            "npx",
+            "--yes",
+            "yarn@1.22.22",
+            "jest",
+            "--findRelatedTests",
+            "--passWithNoTests",
+            "{files}"
+          ],
+          "files": "\\.(ts|tsx|js|jsx)$",
+          "needs": [
+            "deps"
+          ],
+          "no_tests": "No tests found",
+          "timeout": 1800
+        }
+      ],
+      "panel": {
+        "start": [
+          "npx",
+          "--yes",
+          "yarn@1.22.22",
+          "start"
+        ],
+        "port": 3333,
+        "ready_timeout": 600,
+        "playwright": [
+          "npx",
+          "--yes",
+          "yarn@1.22.22",
+          "playwright",
+          "test"
+        ]
+      }
+    }
+  },
+  "repos": {
+    "api-app": {
+      "profile": "php-api-app"
+    },
+    "pricing": {
+      "profile": "php"
+    },
+    "shared-lib": {
+      "profile": "php"
+    },
+    "admin": {
+      "profile": "php"
+    },
+    "web-app": {
+      "profile": "ts"
+    },
+    "notifier": {
+      "profile": "php"
+    }
+  }
+}

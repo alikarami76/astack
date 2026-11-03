@@ -1,0 +1,97 @@
+/* flynn recorder: toolbar control and setup popup. Penpot's own colour variables, so it follows both themes;
+   the glass theme adds its rim light and frosted surface on top. */
+
+.fr-ic { width: 16px; height: 16px; flex: none; }
+.fr-li { display: flex; align-items: center; }
+.fr-rec { color: var(--color-foreground-secondary); }
+.fr-rec:hover { color: var(--color-accent-primary); }
+
+/* live control: a compact capsule in the toolbar */
+.fr-live { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 4px 0 10px; border-radius: 8px;
+  font: 500 12px/1 "worksans", "vazirmatn", sans-serif; color: var(--color-foreground-primary); white-space: nowrap;
+  background: var(--color-background-tertiary); }
+.fr-live .fr-small { --button-height: 1.5rem; height: 24px; padding: 0 8px; font-size: 11px; }
+.fr-pulse { width: 8px; height: 8px; border-radius: 50%; background: #ff5a6e; box-shadow: 0 0 0 0 rgba(255, 90, 110, .5);
+  animation: fr-pulse 1.6s ease-out infinite; }
+@keyframes fr-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 90, 110, .55); } 70% { box-shadow: 0 0 0 7px rgba(255, 90, 110, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 90, 110, 0); } }
+.fr-count { font-variant-numeric: tabular-nums; min-width: 4.5em; }
+.fr-busy { padding-right: 12px; color: var(--color-foreground-secondary); }
+.fr-spin { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--color-background-quaternary);
+  border-top-color: var(--color-accent-primary); animation: fr-spin .8s linear infinite; }
+@keyframes fr-spin { to { transform: rotate(360deg); } }
+.fr-done { color: var(--color-accent-primary); }
+.fr-done span { color: var(--color-foreground-primary); }
+.fr-err { color: var(--color-foreground-error, #ff3277); }
+
+/* popup */
+.fr-overlay { position: fixed; inset: 0; z-index: 2147483100; display: grid; place-items: center;
+  background: var(--color-overlay-default, rgba(0, 0, 0, .5)); animation: fr-fade .16s ease-out both; }
+@keyframes fr-fade { from { opacity: 0; } }
+.fr-dialog { width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; padding: 24px 24px 0;
+  border-radius: 12px; background: var(--color-background-primary); color: var(--color-foreground-primary);
+  border: 1px solid var(--color-background-quaternary); box-shadow: 0 24px 64px rgba(0, 0, 0, .45);
+  font: 400 12px/1.5 "worksans", "vazirmatn", sans-serif; animation: fr-in .22s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes fr-in { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+.fr-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fr-head h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.fr-lead { margin: 6px 0 16px; color: var(--color-foreground-secondary); }
+.fr-form { display: flex; flex-direction: column; gap: 14px; }
+.fr-field { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.fr-field > span, .fr-field > legend { padding: 0; font-weight: 500; color: var(--color-foreground-secondary); text-transform: uppercase;
+  font-size: 11px; letter-spacing: .05em; margin-bottom: 2px; }
+.fr-field small, .fr-how-hint { color: var(--color-foreground-secondary); font-size: 11px; }
+.fr-form input[type=url], .fr-form input:not([type]), .fr-form input[type=number], .fr-form textarea, .fr-sub {
+  width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; font: inherit; font-size: 13px;
+  color: var(--color-foreground-primary); background: var(--color-background-tertiary);
+  border: 1px solid var(--color-background-tertiary); outline: none; }
+.fr-form textarea { resize: vertical; min-height: 64px; }
+.fr-form input:focus, .fr-form textarea:focus { border-color: var(--color-accent-primary); }
+.fr-opt { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; font-size: 13px; }
+.fr-opt input { margin: 2px 0 0; }
+/* Penpot resets native radios and checkboxes, so they are drawn here */
+.fr-opt input[type=radio], .fr-opt input[type=checkbox] { appearance: none; -webkit-appearance: none; flex: none;
+  width: 14px; height: 14px; margin: 1px 0 0; border: 1px solid var(--color-foreground-secondary); background: transparent;
+  display: grid; place-items: center; cursor: pointer; transition: border-color .2s, background-color .2s, box-shadow .25s; }
+.fr-opt input[type=radio] { border-radius: 50%; }
+.fr-opt input[type=checkbox] { border-radius: 4px; }
+.fr-opt input:checked { border-color: var(--color-accent-primary); }
+.fr-opt input[type=radio]:checked { box-shadow: inset 0 0 0 3px var(--color-background-primary); background: var(--color-accent-primary); }
+.fr-opt input[type=checkbox]:checked { background: var(--color-accent-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center/10px no-repeat; }
+.fr-opt input:focus-visible { outline: 1px solid var(--color-accent-primary); outline-offset: 2px; }
+.fr-row { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.fr-opt b { font-weight: 500; }
+.fr-sub { margin-top: 2px; }
+.fr-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+.fr-inline input { width: 72px !important; margin: 0; padding: 6px 10px !important; }
+.fr-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; border-radius: 8px; background: var(--color-background-secondary); }
+.fr-seg label { position: relative; cursor: pointer; }
+.fr-seg input { position: absolute; opacity: 0; pointer-events: none; }
+.fr-seg span { display: block; text-align: center; padding: 7px 8px; border-radius: 6px; font-weight: 500; font-size: 12px;
+  color: var(--color-foreground-secondary); transition: background-color .2s, color .2s, box-shadow .25s; }
+.fr-seg input:checked + span { background: var(--color-background-quaternary); color: var(--color-foreground-primary); }
+.fr-seg input:focus-visible + span { outline: 1px solid var(--color-accent-primary); }
+.fr-rights { padding: 10px 12px; border-radius: 8px; background: var(--color-background-tertiary); }
+.fr-error { padding: 8px 12px; border-radius: 8px; background: var(--color-background-error, #500124); color: var(--color-foreground-primary); }
+.fr-error[hidden], .fr-sub[hidden], .fr-max[hidden] { display: none; }
+.fr-actions { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 8px; margin: 0 -24px; padding: 14px 24px 20px;
+  background: linear-gradient(to bottom, transparent, var(--color-background-primary) 14px); }
+.fr-two { display: flex; gap: 12px; }
+.fr-grow { flex: 1 1 auto; }
+.fr-sys { flex: 0 0 170px; }
+
+/* glass theme: frosted dialog with rim light, lit focus, lit selection */
+html[data-flynn-theme="glass"] body.default .fr-overlay { background: rgba(3, 6, 10, .55); }
+html[data-flynn-theme="glass"] body.default .fr-dialog {
+  border: 0; border-radius: 16px; background: rgba(13, 18, 24, .88);
+  -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: inset 0 0 0 1px rgba(150, 226, 255, .16), 0 0 24px rgba(84, 200, 255, .08), 0 28px 70px rgba(0, 0, 0, .55); }
+html[data-flynn-theme="glass"] body.default .fr-form :is(input[type=url], input:not([type]), input[type=number], textarea, .fr-sub) {
+  background: rgba(6, 8, 11, .55); border-color: transparent; box-shadow: var(--fg-rim); }
+html[data-flynn-theme="glass"] body.default .fr-form :is(input, textarea):focus { box-shadow: var(--fg-rim-lit); }
+html[data-flynn-theme="glass"] body.default .fr-seg input:checked + span { background: var(--fg-tint-lit); color: var(--fg-ice); box-shadow: var(--fg-rim-lit); }
+html[data-flynn-theme="glass"] body.default .fr-rights { background: rgba(6, 8, 11, .45); box-shadow: var(--fg-rim); }
+html[data-flynn-theme="glass"] body.default .fr-live { background: rgba(6, 8, 11, .5); box-shadow: var(--fg-rim); }
+@media (prefers-reduced-motion: reduce) { .fr-pulse, .fr-spin, .fr-overlay, .fr-dialog { animation: none; } }
+html[data-flynn-theme="glass"] body.default .fr-opt input[type=radio]:checked { box-shadow: inset 0 0 0 3px #0d1218, 0 0 6px rgba(84, 200, 255, .45); }
+html[data-flynn-theme="glass"] body.default .fr-opt input[type=checkbox]:checked { box-shadow: 0 0 6px rgba(84, 200, 255, .35); }
+html[data-flynn-theme="glass"] body.default .fr-actions { background: linear-gradient(to bottom, transparent, rgba(13, 18, 24, .96) 14px); }

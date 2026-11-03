@@ -1,0 +1,293 @@
+/* flynn "glass" theme (flynn's look; approved by the user on 2026-10-04). Applies only when <html data-flynn-theme="glass"> and Penpot's dark theme
+   (body.default) are both on, so the light theme and the default look are untouched.
+
+   Direction: Tron's blue light on dark glass, with the restraint of a native OS material.
+   - Glass: large surfaces are calm, cool near-black with one very soft top sheen. Only small floating
+     surfaces (toolbar, menus) use real backdrop blur.
+   - Rim light: an edge is lit from above, the way light catches the top of a pane of glass: a bright
+     1px top highlight, a faint 1px ring and an even fainter bottom edge. Lines never get thicker;
+     selection makes the rim brighter and adds a small halo.
+   - Type: no glowing text. Small uppercase labels get a little tracking and a calm grey; selected
+     text is pale ice, and blue is kept for light, not for paragraphs.
+
+   Performance: no animation, no filters on large areas, no backdrop-filter on anything wider than a menu.
+   Every effect is a static paint (gradients and box-shadows) that the browser rasterizes once. */
+
+html[data-flynn-theme="glass"] body.default {
+  /* Contrast is tuned for budget IPS and TN panels too (2026-10-06): background steps of at least ~8 levels,
+     secondary text above 7:1, and hairlines strong enough to survive crushed blacks and narrow viewing angles. */
+  /* light */
+  --fg-light: #8fe3ff;                          /* the lit accent */
+  --fg-ice: #e4f7ff;                            /* selected text: pale, not saturated */
+  --fg-halo: rgba(84, 200, 255, 0.30);
+  --fg-halo-faint: rgba(84, 200, 255, 0.14);
+  --fg-edge: rgba(150, 226, 255, 0.26);         /* resting hairline */
+
+  /* rim light: an even ring of light, not a bevel. Selection brightens the ring and adds a halo. */
+  --fg-rim: inset 0 0 0 1px rgba(150, 226, 255, 0.22);
+  --fg-rim-hover: inset 0 0 0 1px rgba(150, 226, 255, 0.38), 0 0 8px rgba(84, 200, 255, 0.08);
+  --fg-rim-lit: inset 0 0 0 1px rgba(165, 232, 255, 0.62), 0 0 0 0.5px rgba(165, 232, 255, 0.32),
+                0 0 12px rgba(84, 200, 255, 0.18);
+  --fg-tint-lit: linear-gradient(rgba(170, 228, 255, 0.13), rgba(170, 228, 255, 0.13));
+
+  /* motion: a fluid glide with a slight settle, and a quick, soft fade */
+  --fg-glide: cubic-bezier(0.32, 1.28, 0.45, 1);
+  --fg-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* glass */
+  --fg-glass-0: #10151b;
+  --fg-glass-1: #141a21;
+
+  /* Penpot's own tokens, shifted a little cooler so grey and blue light belong together */
+  --color-background-default: #12171e;
+  --color-background-primary: #12171e;
+  --color-background-secondary: #0b0e13;
+  --color-background-tertiary: #1c232c;
+  --color-background-quaternary: #2a3541;
+  --color-foreground-secondary: #aab7c4;
+  --color-icon-default: #aab7c4;
+
+  --color-accent-primary: var(--fg-light);
+  --color-accent-tertiary: #b5ecff;             /* hover: brighter, not darker */
+  --color-accent-primary-muted: #2c566b;
+  --color-accent-select: rgba(143, 227, 255, 0.17);
+  --color-accent-background-select: rgba(84, 200, 255, 0.70);
+  --color-accent-overlay: rgba(143, 227, 255, 0.55);
+
+  /* default font smoothing: "antialiased" thins light text on dark, which fades on non-Retina and budget panels */
+}
+
+/* ---------- type ---------- */
+
+/* Small uppercase labels: slightly smaller, tracked out, calm. */
+html[data-flynn-theme="glass"] body.default .main_ui_components_title_bar__title,
+html[data-flynn-theme="glass"] body.default .main_ui_components_title_bar__title-only {
+  font-size: 0.6875rem;
+  letter-spacing: 0.07em;
+  color: var(--color-foreground-secondary);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_left_header__project-name {
+  letter-spacing: 0.08em;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__tab-text {
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_button__button {
+  letter-spacing: 0.05em;
+}
+
+/* ---------- glass surfaces ---------- */
+
+/* Sidebars: transparent inner surfaces so the glass shows; inputs and cards keep their own fills. */
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar__left-sidebar,
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar__right-sidebar {
+  --color-background-primary: transparent;
+  --layer-background-color: transparent;
+  background:
+    linear-gradient(180deg, rgba(200, 235, 255, 0.035) 0, transparent 7rem),
+    linear-gradient(180deg, var(--fg-glass-1), var(--fg-glass-0));
+}
+/* the edge that faces the canvas: a 1px lit line with a short inner falloff */
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar__left-sidebar {
+  box-shadow: inset -1px 0 0 var(--fg-edge), inset -10px 0 14px -14px var(--fg-halo-faint);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar__right-sidebar {
+  box-shadow: inset 1px 0 0 var(--fg-edge), inset 10px 0 14px -14px var(--fg-halo-faint);
+}
+
+/* Layer rows: one flat, continuous tint per row (Penpot fills the indentation with a 16px box-shadow in
+   --shadow-color, so the tint goes there too), no outline, no inner blocks behind the arrow or the buttons. */
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row {
+  --layer-background-color: transparent;
+  --shadow-color: transparent;
+  --layer-row-action-btn-background: transparent;
+  border-radius: 0;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row:hover,
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row.main_ui_workspace_sidebar_layer_item__highlight {
+  --layer-background-color: rgba(170, 228, 255, 0.08);
+  --shadow-color: rgba(170, 228, 255, 0.08);
+  --layer-row-action-btn-background: transparent;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row.main_ui_workspace_sidebar_layer_item__selected,
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row.main_ui_workspace_sidebar_layer_item__selected:hover {
+  --layer-background-color: rgba(143, 227, 255, 0.085);
+  --shadow-color: rgba(143, 227, 255, 0.085);
+  --layer-row-action-btn-background: transparent;
+  --layer-foreground-color: var(--fg-ice);
+  color: var(--fg-ice);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row :is(
+  .main_ui_workspace_sidebar_layer_item__toggle-content, .main_ui_workspace_sidebar_layer_item__element-actions,
+  .main_ui_workspace_sidebar_layer_item__toggle-element, .main_ui_workspace_sidebar_layer_item__block-element) {
+  background-color: transparent !important;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row.main_ui_workspace_sidebar_layer_item__selected .main_ui_workspace_sidebar_layer_item__element-children {
+  --layer-foreground-color: var(--fg-light);
+}
+/* Text: hover is white, selected is lit blue with a lit icon, so selection always reads stronger than hover. */
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row:is(:hover, .main_ui_workspace_sidebar_layer_item__highlight) :is([class*=layer_name__element-name], [class*=layer_item__icon-shape], [class*=layer_item__toggle-content]) {
+  color: var(--color-foreground-primary);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row.main_ui_workspace_sidebar_layer_item__selected [class*=layer_name__element-name] {
+  color: var(--fg-light);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_layer_item__layer-row.main_ui_workspace_sidebar_layer_item__selected :is([class*=layer_item__icon-shape], [class*=layer_item__toggle-content]) {
+  color: var(--fg-light);
+}
+/* Pages: a rim-lit glass capsule inset from the edges. */
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_sitemap__page-item-body {
+  border-radius: 0.5rem;
+  margin-inline: 0.5rem !important;     /* view-only mode resets the margin with a stronger rule */
+  inline-size: calc(100% - 1rem) !important;
+  box-sizing: border-box;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_sitemap__page-item-body:hover {
+  background-color: rgba(170, 228, 255, 0.07);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_sitemap__page-item-body.main_ui_workspace_sidebar_sitemap__selected {
+  background: var(--fg-tint-lit);
+  box-shadow: var(--fg-rim-lit);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_sitemap__page-item-body.main_ui_workspace_sidebar_sitemap__selected,
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_sidebar_sitemap__page-item-body.main_ui_workspace_sidebar_sitemap__selected * {
+  color: var(--fg-ice);
+}
+
+/* Floating toolbar: real glass, because the canvas is behind it. Small, so blur is cheap. */
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_top_toolbar__toolbar {
+  --menu-border-color: transparent;
+  border: 0;
+  border-radius: 0.875rem;
+  background: linear-gradient(180deg, rgba(22, 29, 37, 0.84), rgba(9, 12, 17, 0.88));
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow:
+    inset 0 0 0 1px rgba(150, 226, 255, 0.15),
+    0 0 16px rgba(84, 200, 255, 0.07),
+    0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Floating menus and dropdowns: glass with a rim. */
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_context_menu__menu,
+html[data-flynn-theme="glass"] body.default .main_ui_workspace_main_menu__menu,
+html[data-flynn-theme="glass"] body.default .main_ui_ds_controls_shared_options_dropdown__option-list {
+  --options-dropdown-bg-color: rgba(13, 18, 24, 0.86);
+  --options-dropdown-border-color: transparent;
+  background-color: rgba(13, 18, 24, 0.86);
+  border-radius: 0.75rem;
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: inset 0 0 0 1px rgba(150, 226, 255, 0.15),
+              0 0 18px rgba(84, 200, 255, 0.06), 0 14px 34px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- light: highlights and outlines ---------- */
+
+/* Selected tab: a lit glass capsule. With glass.js running, one capsule per tab list glides between tabs;
+   without it, the selected tab carries the capsule itself. Text turns pale ice; it never glows. */
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__selected {
+  --tabs-item-bg-color: transparent;
+  --tabs-item-fg-color: var(--fg-ice);
+  --tabs-item-fg-color-hover: var(--fg-ice);
+  background-image: var(--fg-tint-lit);
+  box-shadow: var(--fg-rim-lit);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__tab-list.fg-ind { position: relative; }
+/* The capsule is a lens above the tabs (it is see-through), so it glides over its neighbours instead of
+   under them; unselected tabs are clear so nothing blocks it. */
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__tab-list.fg-ind .main_ui_ds_layout_tab_switcher__tab {
+  --tabs-item-bg-color: transparent;
+  --tabs-item-bg-color-hover: transparent;
+  background-color: transparent;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__tab-list.fg-ind .main_ui_ds_layout_tab_switcher__selected {
+  background-image: none;
+  box-shadow: none;
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__tab-list.fg-ind::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: var(--fg-ind-x); top: var(--fg-ind-y);
+  width: var(--fg-ind-w); height: var(--fg-ind-h);
+  border-radius: 0.5rem;
+  background-image: var(--fg-tint-lit);
+  box-shadow: var(--fg-rim-lit);
+  pointer-events: none;
+  /* the width trails the position slightly, so the capsule stretches a little as it moves, then settles */
+  transition: left 0.38s var(--fg-glide), width 0.46s var(--fg-glide), top 0.38s var(--fg-glide), height 0.38s var(--fg-glide);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__tab-list.fg-ind-still::before { transition: none; }
+html[data-flynn-theme="glass"] body.default .main_ui_ds_layout_tab_switcher__tab {
+  transition: color 0.25s var(--fg-ease);
+}
+
+/* Primary buttons: a flat light source. Even fill, a crisp ring of light, a soft halo; no bevel. */
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_button__button-primary:not(:disabled),
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_icon_button__icon-button-primary:not(:disabled) {
+  --button-fg-color: #04131b;
+  --button-hover-fg-color: #04131b;
+  box-shadow: 0 0 0 1px rgba(200, 242, 255, 0.30), 0 0 12px var(--fg-halo);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_button__button-primary:not(:disabled):hover,
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_icon_button__icon-button-primary:not(:disabled):hover {
+  box-shadow: 0 0 0 1px rgba(214, 246, 255, 0.50), 0 0 18px rgba(84, 200, 255, 0.34);
+}
+
+/* Secondary buttons: glass with a rim. */
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_button__button-secondary,
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_icon_button__icon-button-secondary {
+  box-shadow: var(--fg-rim);
+}
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_button__button-secondary:hover,
+html[data-flynn-theme="glass"] body.default .main_ui_ds_buttons_icon_button__icon-button-secondary:hover {
+  box-shadow: var(--fg-rim-hover);
+}
+
+/* Focus: the field's rim lights up instead of the border getting heavier. */
+html[data-flynn-theme="glass"] body.default input:focus,
+html[data-flynn-theme="glass"] body.default textarea:focus,
+html[data-flynn-theme="glass"] body.default .main_ui_comments__comment-input:focus {
+  border-color: transparent !important;
+  box-shadow: var(--fg-rim-lit);
+}
+html[data-flynn-theme="glass"] body.default :focus-visible {
+  outline-color: var(--fg-light);
+}
+
+/* Scrollbars: a faint lit thumb on a clear track. */
+html[data-flynn-theme="glass"] body.default * { scrollbar-color: rgba(150, 226, 255, 0.20) transparent; }
+
+/* ---------- motion ---------- */
+
+/* Hover and selection: light fades in and out instead of switching. Only paint properties and transform. */
+html[data-flynn-theme="glass"] body.default :is(.main_ui_ds_buttons_button__button, .main_ui_ds_buttons_icon_button__icon-button,
+  .main_ui_workspace_sidebar_layer_item__layer-row, .main_ui_workspace_sidebar_sitemap__page-item-body,
+  .main_ui_workspace_top_toolbar__toolbar-option, input, textarea) {
+  transition: background-color 0.22s var(--fg-ease), box-shadow 0.28s var(--fg-ease), color 0.22s var(--fg-ease),
+              border-color 0.22s var(--fg-ease), transform 0.32s var(--fg-glide);
+}
+/* Press: a small, springy give, released with a gentle settle. */
+html[data-flynn-theme="glass"] body.default :is(.main_ui_ds_buttons_button__button, .main_ui_ds_buttons_icon_button__icon-button,
+  .main_ui_ds_layout_tab_switcher__tab, .main_ui_workspace_top_toolbar__toolbar-option):active:not(:disabled) {
+  transform: scale(0.96);
+  transition-duration: 0.09s;
+}
+
+/* Floating menus open like glass condensing: a quick fade with a slight scale from the top. */
+@keyframes fg-glass-in {
+  from { opacity: 0; transform: translateY(-3px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+html[data-flynn-theme="glass"] body.default :is(.main_ui_workspace_context_menu__menu, .main_ui_workspace_main_menu__menu,
+  .main_ui_ds_controls_shared_options_dropdown__option-list) {
+  transform-origin: top center;
+  animation: fg-glass-in 0.2s var(--fg-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-flynn-theme="glass"] body.default *,
+  html[data-flynn-theme="glass"] body.default *::before { transition: none !important; animation: none !important; }
+}

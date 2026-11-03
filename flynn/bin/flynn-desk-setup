@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""flynn desk: one-time setup on a new Mac.
+
+  flynn-desk-setup [--email OWNER_EMAIL] [--name "Owner name"]
+
+Run it once after cloning (Docker Desktop must be installed). It is safe to run again: every step checks first.
+  1. writes adapters/penpot/stack/.env (Penpot version and flags) if it is missing;
+  2. creates the app's secret key in the macOS keychain (service flynn-penpot, account secret-key);
+  3. starts the app's containers on 127.0.0.1 and waits for them;
+  4. rebrands the app as flynn desk (brand.py) and restarts the frontend with the branded files;
+  5. creates your local account (password generated into the keychain, account `password`), a team called flynn,
+     and turns on the canvas connector with its key in the keychain (account `mcp-key`);
+  6. creates flynn's builder account (adapters/library/builder.py setup), which keeps shared libraries in sync;
+  7. uploads the document fonts to every team (adapters/library/fonts.py).
+Then start everything with bin/flynn-desk. Read your password with:
+  security find-generic-password -s flynn-penpot -a password -w
+Secrets are never printed or written to files.
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import secrets
+import subprocess
+import sys
+import time
+import urllib.request
+from pathlib import Path
+
+FLYNN = Path(__file__).resolve().parents[1]
+STACK = FLYNN / "adapters" / "penpot" / "stack"
+DOCKER = os.environ.get("FLYNN_DOCKER", "/Applications/Docker.app/Contents/Resources/bin/docker")
+BACKEND = "flynn-penpot-penpot-backend-1"
+VERSION = "2.18.1"
+FLAGS = ("disable-email-verification enable-smtp enable-prepl-server disable-secure-session-cookies enable-mcp "
+         "enable-admin-console enable-access-tokens enable-login-with-password disable-registration")
+sys.path.insert(0, str(FLYNN / "adapters" / "penpot"))
+sys.path.insert(0, str(FLYNN / "adapters" / "library"))
+
+
+def say(step: str, text: str) -> None:
+    print(f"{step:<10} {text}", flush=True)
+
+
+sys.path.insert(0, str(FLYNN / "scripts"))
+import fsecrets  # noqa: E402  - env, secrets folder, then the keychain
+
+
+def kc_get(account: str) -> str | None:
+    return fsecrets.get(account)
+
+
+def kc_set(account: str, value: str) -> None:
+    fsecrets.set(account, value)
+
+
+def compose(*args: str, brand: bool) -> None:
+    files = ["-f", "docker-compose.yaml", "-f", "docker-compose.flynn.yaml"]
+    if brand and (STACK / "docker-compose.brand.yaml").exists():
+        files += ["-f", "docker-compose.brand.yaml"]
+    env = {**os.environ, "PENPOT_SECRET_KEY": kc_get("secret-key") or "",
+           "PATH": f"{Path(DOCKER).parent}:{os.environ.get('PATH', '')}"}
+    subprocess.run([DOCKER, "compose", "-p", "flynn-penpot", *files, *args], cwd=STACK, env=env, check=True,
+                   stdout=subprocess.DEVNULL)
+
+
+def wait_up(url: str = "http://127.0.0.1:9001/", tries: int = 90) -> None:
+    for _ in range(tries):
+        try:
+            with urllib.request.urlopen(url, timeout=2):
+                return
+        except Exception:  # noqa: BLE001
+            time.sleep(2)
+    raise SystemExit("the app did not come up on 127.0.0.1:9001 (check `docker compose -p flynn-penpot logs`)")
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog="flynn-desk-setup")
+    ap.add_argument("--email", default="owner@flynn.local", help="your local login (it never leaves this Mac)")
+    ap.add_argument("--name", default="flynn")
+    a = ap.parse_args(argv)
+    if sys.platform != "darwin":
+        raise SystemExit("flynn desk setup expects macOS (it keeps secrets in the keychain)")
+    if not Path(DOCKER).exists():
+        raise SystemExit(f"Docker Desktop not found at {DOCKER} (install it, or set FLYNN_DOCKER)")
+
+    env = STACK / ".env"
+    if not env.exists():
+        env.write_text(f"PENPOT_VERSION={VERSION}\nPENPOT_FLAGS={FLAGS}\n")
+        say("config", f"wrote {env.relative_to(FLYNN)}")
+    if not kc_get("secret-key"):
+        kc_set("secret-key", secrets.token_urlsafe(48))
+        say("secret", "created the app's secret key in the keychain")
+
+    say("app", "starting the containers (the first start downloads the images)")
+    compose("up", "-d", brand=False)
+    wait_up()
+    if not (STACK / "docker-compose.brand.yaml").exists() or not (STACK / "flynn-overlay" / "brand").exists():
+        say("brand", "rebranding the app as flynn desk")
+        subprocess.run([sys.executable, str(STACK / "brand.py")], check=True, stdout=subprocess.DEVNULL)
+        compose("up", "-d", "--force-recreate", "penpot-frontend", brand=True)
+        wait_up()
+
+    from bridge import PenpotError  # noqa: E402
+    import builder  # noqa: E402
+    if not kc_get("password"):
+        pw = secrets.token_urlsafe(18)
+        r = subprocess.run([DOCKER, "exec", "-e", f"N={a.name}", "-e", f"E={a.email}", "-e", f"P={pw}", BACKEND, "sh", "-c",
+                            'cd /opt/penpot/backend && ./manage.py create-profile -n "$N" -e "$E" -p "$P" '
+                            '--skip-tutorial --skip-walkthrough'], capture_output=True, text=True)
+        if r.returncode != 0 and "exist" not in (r.stdout + r.stderr).lower():
+            raise SystemExit("could not create your account: " + (r.stderr or r.stdout)[-300:])
+        kc_set("password", pw)
+        say("account", f"created {a.email}; read the password with: security find-generic-password -s flynn-penpot -a password -w")
+    kc_set("owner-email", a.email)                       # every flynn tool signs in as this account
+    builder.OWNER_EMAIL = a.email
+    owner = builder.owner()
+    if not any(t["name"] == builder.TEAM_NAME for t in owner("get-teams")):
+        owner("create-team", {"name": builder.TEAM_NAME})
+        say("team", f"created the team {builder.TEAM_NAME}")
+    owner("update-profile-props", {"props": {"mcpEnabled": True}})
+    if not kc_get("mcp-key"):
+        t = owner("create-access-token", {"name": "flynn-mcp", "type": "mcp"})
+        kc_set("mcp-key", t["token"])
+        say("connector", "turned on the canvas connector; its key is in the keychain")
+    try:
+        say("builder", str(builder.setup()))
+    except PenpotError as e:
+        say("builder", f"skipped: {e}")
+    try:
+        import fonts
+        fonts.sync(log=lambda m: None)
+        say("fonts", "document fonts are on every team")
+    except Exception as e:  # noqa: BLE001
+        say("fonts", f"skipped: {e}")
+    print("\nDone. Start flynn desk with:  bin/flynn-desk")
+    print("Sign in with the email above and the password from the keychain, then open any file once so the canvas")
+    print("connector can reach it.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

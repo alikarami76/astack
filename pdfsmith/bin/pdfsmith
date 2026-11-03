@@ -1,0 +1,4 @@
+#!/bin/sh
+# Runs pdfsmith from its own uv project, whatever the caller's working directory.
+ROOT="$(cd "$(dirname "$(realpath "$0")")/.." && pwd -P)"
+exec uv run --quiet --project "$ROOT" pdfsmith "$@"

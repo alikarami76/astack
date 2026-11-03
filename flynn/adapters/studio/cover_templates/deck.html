@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}"><head><meta charset="utf-8"><meta name="viewport" content="width=1600"><title>{{title}}</title>
+<style>
+{{base_css}}
+:root { --accent: var(--ice); }
+body { background: #07090c; }
+.card { padding: 0; }
+.strip { position: absolute; top: 118px; inset-inline-start: 80px; inset-inline-end: 80px; display: flex; gap: 28px; counter-reset: s; }
+.th { flex: 1 1 0; min-width: 0; max-width: 461px; aspect-ratio: 16/9; border-radius: 6px; box-shadow: 0 0 0 1.5px rgba(228,247,255,.22), 0 30px 50px -26px #000; counter-increment: s; overflow: visible; background: var(--g2); }
+.th img { border-radius: 6px; height: 100%; }
+.th::after { content: "0" counter(s); position: absolute; bottom: -38px; inset-inline-start: 0; font-family: "Geist", monospace; font-size: 19px; letter-spacing: .1em; color: var(--faint); }
+.th.ph { min-height: 259px; }
+.rail { position: absolute; top: 452px; inset-inline: 80px; height: 2px; background: var(--line); }
+.rail::before { content: ""; position: absolute; inset-inline-start: 0; width: 28%; height: 2px; background: var(--ice); }
+.copy { position: absolute; top: 520px; inset-inline-start: 80px; width: 1040px; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-size: {{title_px}}px; }
+.sub { font-size: 28px; }
+.aside { position: absolute; top: 524px; inset-inline-end: 80px; width: 330px; display: flex; flex-direction: column; gap: 22px; padding-top: 0; }
+.aside .mi { display: flex; flex-direction: column; gap: 6px; padding-top: 14px; border-top: 1.5px solid var(--line-2); }
+.aside .mi b { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+[dir=rtl] .aside .mi b { letter-spacing: 0; font-size: 18px; text-transform: none; }
+.aside .mi span { font-size: 24px; color: var(--ink); font-weight: 500; }
+</style></head>
+<body><div class="card">
+  <div class="strip">{{thumbs_html}}</div><div class="rail"></div>
+  <div class="copy"><span class="kind">{{kind_label}}</span><h1>{{title}}</h1><p class="sub">{{subtitle}}</p><div class="chips" style="margin-top:6px">{{chips_html}}</div></div>
+  <div class="aside"><div class="mi"><b>{{l_system}}</b><span>{{system}}</span></div><div class="mi"><b>{{l_date}}</b><span>{{date}}</span></div><div class="mi"><b>{{l_designs}}</b><span>{{options_text}} · {{picked_text}}</span></div></div>
+</div></body></html>

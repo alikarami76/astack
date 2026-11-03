@@ -1,0 +1,44 @@
+/* editorial: report additions (templates/report.html). Loaded after style.css; uses its tokens only. */
+
+.report-head { padding: 72px 0 8px; }
+.report-head .kind { color: var(--accent); font-weight: 800; font-size: 15px; margin-bottom: 10px; }
+.report-head h1 { font-size: 46px; line-height: 1.35; margin-bottom: 16px; }
+.report-head .byline { color: var(--muted); font-size: 14px; display: flex; gap: 14px; flex-wrap: wrap; }
+.report-head .byline span + span::before { content: "·"; margin-left: 14px; color: var(--faint); }
+.sample-flag { display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 700; color: var(--muted); background: var(--soft); border-radius: 8px; padding: 4px 10px; }
+
+/* the answer first */
+.answer { border-right: 3px solid var(--accent); padding: 4px 20px 4px 0; margin: 36px 0 8px; }
+.answer .k { font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+.answer p { font-size: 20px; line-height: 1.85; color: var(--ink); margin: 0; }
+
+/* key numbers */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 36px auto 8px; }
+.kpi { border: 1px solid var(--line); border-radius: var(--r); padding: 18px 18px 16px; }
+.kpi .v { font-size: 30px; font-weight: 900; color: var(--ink); line-height: 1.2; }
+.kpi .l { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-top: 6px; }
+.kpi .d { display: inline-block; font-size: 12.5px; font-weight: 800; margin-top: 8px; color: var(--text); background: var(--soft); border-radius: 6px; padding: 2px 8px; }
+.kpi.hot .v { color: var(--accent); }
+
+/* a finding: the headline is the claim, the chart proves it, the text explains it */
+.finding { margin-top: 56px; }
+.finding-next { padding-top: 16px; }
+.finding .n { color: var(--accent); font-weight: 900; font-size: 14px; margin-bottom: 6px; }
+.finding h3 { margin-top: 0; }
+figure.chart { margin: 20px 0 12px; padding: 20px 22px 14px; border: 1px solid var(--line); border-radius: var(--r); background: #fff; }
+figure.chart figcaption { margin-top: 10px; font-size: 13.5px; color: var(--faint); line-height: 1.7; }
+.caveat { font-size: 15px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 10px; }
+.caveat b { color: var(--text); }
+
+/* method and definitions */
+.method { background: var(--soft); border-radius: var(--r); padding: 22px 24px 10px; margin: 24px 0; }
+.method dl { margin: 0; display: grid; grid-template-columns: 150px 1fr; gap: 6px 16px; font-size: 15px; }
+.method dt { font-weight: 700; color: var(--ink); }
+.method dd { margin: 0 0 8px; color: var(--text); }
+
+/* recommendations */
+table.recs td:first-child { width: 36px; color: var(--accent); font-weight: 900; }
+table.recs td:nth-child(3), table.recs th:nth-child(3) { width: 120px; white-space: nowrap; }
+table.recs td { vertical-align: top; }
+
+@media (max-width: 720px) { .kpi-row { grid-template-columns: 1fr 1fr; } .method dl { grid-template-columns: 1fr; } }

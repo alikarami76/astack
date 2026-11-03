@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}"><head><meta charset="utf-8"><meta name="viewport" content="width=1600"><title>{{title}}</title>
+<style>
+{{base_css}}
+:root { --accent: var(--light); }
+body { background: var(--g0); }
+.card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 72px 120px 0; }
+.label { display: flex; align-items: center; gap: 28px; width: 100%; }
+.label::before, .label::after { content: ""; flex: 1; height: 1.5px; background: var(--line-2); }
+.kind::before { display: none; }
+.copy { display: flex; flex-direction: column; align-items: center; gap: 28px; margin-top: 52px; max-width: 1240px; }
+h1 { font-size: {{title_px}}px; text-align: center; }
+.sub { max-width: 980px; }
+.chips { justify-content: center; margin-top: 8px; }
+.row { position: absolute; bottom: 64px; inset-inline: 0; display: flex; justify-content: center; gap: 28px; }
+.th { flex: none; width: 352px; height: 220px; border-radius: 10px; box-shadow: 0 0 0 1.5px var(--line-2), 0 24px 40px -24px #000; }
+.th.ph { min-width: 0; min-height: 0; }
+.foot { position: absolute; top: 72px; inset-inline-end: 120px; }
+.dt { display: none; }
+</style></head>
+<body><div class="card">
+  <div class="label"><span class="kind">{{kind_label}}</span></div>
+  <div class="copy"><h1>{{title}}</h1><p class="sub">{{subtitle}}</p><div class="chips">{{chips_html}}</div>
+    <p class="sub" style="font-size:22px;color:var(--faint);margin-top:6px">{{system}} · {{date}} · {{options_text}}</p></div>
+  <div class="row">{{thumbs_html}}</div>
+</div></body></html>

@@ -1,0 +1,11 @@
+{
+  "api-app": {"path": "~/code/api-app", "gitlab": "team/api-app", "ref": "main", "lang": "php"},
+  "web-app": {"path": "~/code/web-app", "gitlab": "team/web-app", "ref": "dev", "lang": "ts"},
+  "admin": {"path": "~/code/admin", "gitlab": "team/admin", "ref": "main", "lang": "php"},
+  "pricing": {"path": "~/code/pricing", "gitlab": "team/pricing", "ref": "main", "lang": "php"},
+  "framework": {"path": "~/code/framework", "gitlab": "team/framework", "ref": "main", "lang": "php"},
+  "shared-lib": {"path": "~/code/shared-lib", "gitlab": "team/shared-lib", "ref": "main", "lang": "php"},
+  "core-app": {"path": "~/code/core-app", "gitlab": "team/core-app", "ref": "main", "lang": "php"},
+  "ledger": {"path": "~/code/ledger", "gitlab": "team/ledger", "ref": "main", "lang": "java"},
+  "notifier": {"path": "~/code/notifier", "gitlab": "team/notifier", "ref": "main", "lang": "php"}
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Flynn is being updated</title>
+<link rel="icon" type="image/png" href="/static/flynn-logo-64.png">
+<style>
+/* Studio's glass tokens (static/theme.css), inlined so this page needs nothing but the logo and the font. */
+@font-face { font-family: "Geist"; src: url("/static/geist.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("/static/geist-mono.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+:root { --g0:#0b0e13; --g1:#10151b; --g2:#141a21; --ink:#eef6fb; --text:#c9d4dd; --muted:#aab7c4; --faint:#7d8a97;
+  --light:#8fe3ff; --edge:rgba(150,226,255,.26); --line:rgba(170,200,225,.10); --halo:rgba(84,200,255,.30);
+  --green:#5fdcab; --amber:#f3b26b;
+  --sheen:linear-gradient(180deg,rgba(200,235,255,.035) 0,transparent 7rem);
+  --lift:0 18px 48px -20px rgba(0,0,0,.75);
+  --sans:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: light) {
+  :root { --g0:#f3f6f9; --g1:#ffffff; --g2:#eef2f6; --ink:#0d1a24; --text:#2a3947; --muted:#4a5a69; --faint:#6b7a88;
+    --light:#0a7ea4; --edge:rgba(10,126,164,.30); --line:rgba(30,60,90,.12); --halo:rgba(10,126,164,.22);
+    --green:#12805c; --amber:#a35f00;
+    --sheen:linear-gradient(180deg,rgba(10,126,164,.05) 0,transparent 7rem); --lift:0 18px 48px -24px rgba(20,50,80,.35); }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { font: 15px/1.55 var(--sans); color: var(--text); background: var(--g0); display: grid; place-items: center;
+  min-height: 100vh; padding: 24px 16px; -webkit-font-smoothing: antialiased; }
+main { width: 100%; max-width: 460px; text-align: center; background: var(--sheen), var(--g1); border-radius: 14px;
+  padding: 36px 28px 26px; box-shadow: inset 0 0 0 1px var(--edge), var(--lift); }
+.logo { width: 52px; height: 52px; border-radius: 12px; display: block; margin: 0 auto 18px; }
+h1 { margin: 0 0 10px; font-size: 22px; line-height: 1.25; font-weight: 600; color: var(--ink); letter-spacing: -.01em; }
+p.lead { margin: 0 auto; max-width: 36ch; color: var(--muted); }
+.bar { height: 3px; border-radius: 3px; background: var(--line); margin: 24px auto 16px; overflow: hidden; max-width: 260px; }
+.bar i { display: block; height: 100%; width: 38%; border-radius: 3px; background: var(--light);
+  animation: slide 1.8s ease-in-out infinite; }
+@keyframes slide { 0% { transform: translateX(-110%); } 100% { transform: translateX(290%); } }
+@media (prefers-reduced-motion: reduce) { .bar i { animation: none; width: 100%; opacity: .5; } }
+.status { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; font: 12.5px/1.4 var(--mono); color: var(--faint); }
+.status b { font-weight: 500; color: var(--muted); }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--amber); margin-right: 6px; vertical-align: 1px; }
+.dot.ok { background: var(--green); }
+@media (max-width: 440px) { main { padding: 30px 18px 22px; } h1 { font-size: 20px; } }
+</style>
+</head>
+<body>
+<main role="status" aria-live="polite">
+  <img class="logo" src="/static/flynn-logo.png" width="52" height="52" alt="Flynn">
+  <h1>Flynn is being updated</h1>
+  <p class="lead">New changes are being installed. This page reconnects by itself in a minute or two; your work is saved.</p>
+  <div class="bar" aria-hidden="true"><i></i></div>
+  <div class="status">
+    <span><span class="dot" id="dot"></span><b id="state">checking…</b></span>
+    <span>Updating for <b id="elapsed">0s</b></span>
+  </div>
+</main>
+<script>
+(function () {
+  var started = Date.now(), since = null, reloading = false;
+  var elapsedEl = document.getElementById("elapsed"), stateEl = document.getElementById("state"), dot = document.getElementById("dot");
+  function fmt(s) { s = Math.max(0, Math.floor(s)); var m = Math.floor(s / 60); return m ? m + "m " + (s % 60) + "s" : s + "s"; }
+  function tick() { elapsedEl.textContent = fmt((Date.now() - (since ? since * 1000 : started)) / 1000); }
+  function note(t, ok) { stateEl.textContent = t; dot.className = "dot" + (ok ? " ok" : ""); }
+  function get(url) {
+    return fetch(url, { cache: "no-store", credentials: "same-origin", redirect: "manual" });
+  }
+  function isMaintenance(res, json) {
+    if (res.headers.get("X-Flynn-Maintenance") === "1") return true;
+    if (res.status === 502 || res.status === 503 || res.status === 504) return true;
+    return !!(res.ok && json && json.maintenance === true);
+  }
+  function check() {
+    get("/__maintenance/status").then(function (res) {
+      return res.json().catch(function () { return null; }).then(function (json) { return { res: res, json: json }; });
+    }).then(function (r) {
+      if (isMaintenance(r.res, r.json)) {
+        if (r.json && r.json.since && !since) since = r.json.since;
+        note("still updating…", false);
+        return;
+      }
+      /* Not a maintenance answer any more (404, a sign-in redirect, or Studio's own reply): confirm with /healthz. */
+      return get("/healthz").then(function (h) {
+        return h.json().catch(function () { return null; }).then(function (j) {
+          if (h.ok && j && !j.maintenance && !isMaintenance(h, j)) { note("back, reloading…", true); reloading = true; location.reload(); }
+          else note("still updating…", false);
+        });
+      });
+    }).catch(function () { if (!reloading) note("checking…", false); });
+  }
+  setInterval(tick, 1000);
+  setInterval(check, 5000);
+  check(); tick();
+})();
+</script>
+</body>
+</html>

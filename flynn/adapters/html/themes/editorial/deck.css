@@ -1,0 +1,90 @@
+/* editorial deck: 16:9 slides at 1280x720 CSS px (rendered at 2x = 2560x1440). Loaded after style.css and
+   uses only its :root tokens. Render with: render.py <page> --slides --pdf <name>.pdf */
+
+body.deck { background: var(--soft); }
+main.deck { padding: 32px 0; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+
+.slide {
+  position: relative; width: 1280px; height: 720px; overflow: hidden; background: var(--surface);
+  padding: 72px 88px 96px; display: flex; flex-direction: column; justify-content: center; counter-increment: slide;
+  box-shadow: 0 1px 2px rgba(16,16,32,.04), 0 12px 32px -12px rgba(16,16,32,.12);
+}
+main.deck { counter-reset: slide; }
+.slide > .foot {
+  position: absolute; left: 88px; right: 88px; bottom: 32px; display: flex; justify-content: space-between;
+  font-size: 14px; line-height: 1; color: var(--faint); font-weight: 500;
+}
+.slide > .foot::after { content: counter(slide, persian); font-weight: 700; color: var(--muted); }
+
+/* shared slide type (larger than the page scale: slides are read from across a room) */
+.slide .kicker { color: var(--accent); font-weight: 800; font-size: 20px; margin-bottom: 18px; }
+.slide h1 { font-size: 72px; line-height: 1.25; font-weight: 900; margin: 0 0 24px; }
+.slide h2 { font-size: 48px; line-height: 1.35; font-weight: 800; margin: 0 0 20px; }
+.slide h3 { font-size: 28px; line-height: 1.5; font-weight: 700; margin: 0 0 10px; }
+.slide p, .slide li { font-size: 24px; line-height: 1.75; color: var(--text); }
+.slide .sub { font-size: 26px; line-height: 1.7; color: var(--muted); max-width: 900px; }
+.slide ul { margin: 0; padding: 0 28px 0 0; }
+.slide li { margin-bottom: 10px; }
+
+/* title */
+.slide.title { justify-content: center; }
+.slide.title .wordmark { position: absolute; top: 64px; right: 88px; }
+.slide.title .meta { margin-top: 28px; font-size: 20px; color: var(--faint); }
+
+/* section divider */
+.slide.divider { justify-content: center; background: var(--soft); }
+.slide.divider .num { font-size: 120px; line-height: 1; font-weight: 900; color: var(--accent); margin-bottom: 24px; }
+
+/* one big statement + support */
+.slide.statement { justify-content: center; }
+.slide.statement h2 { font-size: 60px; max-width: 1000px; }
+
+/* screenshot + caption */
+.slide.shot-slide { padding-bottom: 80px; }
+.slide.shot-slide .frame { flex: 1; min-height: 0; display: flex; gap: 48px; align-items: center; }
+.slide.shot-slide .frame .shot { flex: 1.6; min-width: 0; }
+.slide.shot-slide .frame .shot img { max-height: 470px; width: 100%; object-fit: contain; object-position: top; background: var(--surface); }
+.slide.shot-slide .frame .cap { flex: 1; }
+.slide.shot-slide .cap p { font-size: 22px; }
+
+/* two-column compare */
+.slide .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 12px; }
+.slide .compare .side { border: 1px solid var(--line); border-radius: var(--r); padding: 28px 32px 20px; }
+.slide .compare .side.after { border: 2px solid var(--ink); }
+.slide .compare .label { display: inline-block; font-size: 16px; font-weight: 800; border-radius: 999px; padding: 6px 14px; background: var(--soft); color: var(--muted); margin-bottom: 14px; }
+.slide .compare .after .label { background: var(--ink); color: var(--surface); }
+.slide .compare li { font-size: 22px; }
+
+/* chart and screenshot slides fill the height instead of centring */
+.slide:has(figure.chart), .slide.shot-slide { justify-content: flex-start; }
+
+/* chart slot */
+.slide figure.chart { flex: 1; min-height: 0; margin: 8px 0 0; display: flex; flex-direction: column; }
+.slide figure.chart .plot { flex: 1; min-height: 0; border: 1px dashed var(--line); border-radius: var(--r); display: flex; align-items: center; justify-content: center; color: var(--faint); font-size: 20px; }
+.slide figure.chart .plot > svg, .slide figure.chart .plot > img { width: 100%; height: 100%; }
+.slide figure.chart:has(.plot > svg, .plot > img) .plot { border: 0; }
+.slide figure.chart figcaption { font-size: 18px; margin-top: 12px; }
+
+/* numbers row */
+.slide .numbers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 32px; }
+.slide .numbers .n { border-top: 3px solid var(--ink); padding-top: 20px; }
+.slide .numbers .n.key { border-top-color: var(--accent); }
+.slide .numbers .big { font-size: 64px; line-height: 1.15; font-weight: 900; color: var(--ink); }
+.slide .numbers .n.key .big { color: var(--accent); }
+.slide .numbers p { font-size: 20px; color: var(--muted); margin: 8px 0 0; }
+
+/* closing / next steps */
+.slide .next-list { list-style: none; padding: 0; margin: 16px 0 0; counter-reset: nx; }
+.slide .next-list li { counter-increment: nx; position: relative; padding: 18px 64px 18px 0; border-bottom: 1px solid var(--line); margin: 0; }
+.slide .next-list li::before { content: counter(nx, persian); position: absolute; right: 0; top: 18px; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--surface); font-weight: 800; font-size: 18px; line-height: 40px; text-align: center; }
+.slide .next-list b { display: block; font-size: 26px; }
+.slide .next-list span { font-size: 20px; color: var(--muted); }
+
+/* print: one 1280x720 page per slide */
+@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  body.deck { background: var(--surface); }
+  main.deck { padding: 0; gap: 0; display: block; }
+  .slide { box-shadow: none; break-after: page; page-break-after: always; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+}

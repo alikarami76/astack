@@ -1,0 +1,39 @@
+/* App builder workspace, on theme.css tokens: chat left, the app right. */
+.appshell { display: grid; grid-template-columns: min(var(--side-w, 420px), 60vw) minmax(0, 1fr); height: calc(100vh - 52px); overflow: hidden; transition: grid-template-columns .3s var(--ease); }
+.appshell.side-closed { grid-template-columns: 0 minmax(0, 1fr); }
+.appshell > .app-chat { width: min(var(--side-w, 420px), 60vw); justify-self: end; transition: opacity .24s var(--ease), visibility 0s linear 0s; }
+.app-chat .resize { left: auto; right: -3px; }
+.app-chat { box-shadow: inset -1px 0 0 var(--edge), inset -10px 0 14px -14px var(--halo-faint); }
+.app-chat .pane.chat { position: absolute; inset: 0; }
+.top .crumb a { color: var(--muted); }
+.top .crumb a:hover { color: var(--ink); }
+.app-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--g0); }
+.app-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; flex: none; box-shadow: inset 0 -1px 0 var(--line); }
+.app-bar .grow { flex: 1; }
+.app-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); }
+.app-status .live { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+.app-view { flex: 1; min-height: 0; position: relative; display: flex; }
+.app-view[hidden] { display: none; }
+.app-frame { position: relative; flex: 1; margin: 16px auto; width: calc(100% - 32px); max-width: calc(100% - 32px); border-radius: var(--r-m); overflow: hidden; background: #fff;
+  box-shadow: 0 0 0 1px rgba(150, 226, 255, .16), 0 30px 60px -30px rgba(0, 0, 0, .8); transition: max-width .3s var(--ease); }
+.app-frame iframe { border: 0; width: 100%; height: 100%; display: block; background: #fff; }
+.app-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px;
+  background: var(--g1); color: var(--muted); }
+.app-empty b { color: var(--ink); font-weight: 600; }
+.app-view.code { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
+.app-view.code[hidden] { display: none; }
+.app-tree { overflow: auto; padding: 8px 0; box-shadow: inset -1px 0 0 var(--line); display: flex; flex-direction: column; }
+.app-tree button { border: 0; background: transparent; text-align: start; color: var(--muted); font-family: var(--mono); font-size: 12px; padding: 5px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-tree button:hover { color: var(--ink); background: var(--tint); }
+.app-tree button.on { color: var(--ice); background: var(--tint-lit); }
+.app-src { margin: 0; padding: 16px 20px; overflow: auto; font: 400 12.5px/1.6 var(--mono); color: var(--text); white-space: pre; tab-size: 2; }
+.app-versions { flex: 1; overflow: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; }
+.app-ver { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--r-s); }
+.app-ver:hover { background: var(--tint); }
+.app-ver .grow { flex: 1; min-width: 0; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1000px) { .appshell, .appshell.side-closed { grid-template-columns: 1fr; grid-template-rows: 55vh 1fr; } .appshell.side-closed { grid-template-rows: 0 1fr; } .appshell > .app-chat { width: auto; } .app-chat .resize { display: none; } }
+.app-ai { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); padding: 4px 9px; border-radius: 999px; background: var(--tint-lit); }
+.app-ai b { color: var(--ice); font-weight: 600; letter-spacing: .04em; font-size: 11px; }
+
+.app-tree button { transition: background-color .2s var(--ease), color .2s var(--ease); }
+.app-ver { transition: background-color .2s var(--ease); }

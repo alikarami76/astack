@@ -1,0 +1,25 @@
+colors:
+  text: "#1f2328"
+  muted: "#59636e"
+  accent: "#0b5fff"
+  accent-contrast: "#ffffff"
+  surface: "#ffffff"
+  subtle: "#f5f7f9"
+  border: "#d8dee4"
+  info: "#0b5fff"
+  warn: "#9a6700"
+  risk: "#cf222e"
+  success: "#1a7f37"
+fonts:
+  body: [Inter]
+  heading: [Inter]
+  display: [Inter]
+  mono: [JetBrains Mono]
+type:
+  base: 10.5pt
+  scale: 1.25
+  leading: 1.55
+  leading_tight: 1.2
+space:
+  unit: 4pt
+radius: 4pt

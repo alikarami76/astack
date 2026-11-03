@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}"><head><meta charset="utf-8"><meta name="viewport" content="width=1600"><title>{{title}}</title>
+<style>
+{{base_css}}
+:root { --accent: #0b6a8a; --paper: #f5f7f9; }
+body { background: var(--paper); color: #33404c; }
+.card { padding: 0; }
+.band { position: absolute; top: 0; inset-inline: 0; height: 16px; background: var(--accent); }
+.left { position: absolute; top: 96px; inset-inline-start: 96px; width: 860px; bottom: 80px; display: flex; flex-direction: column; justify-content: space-between; }
+.kind { color: var(--accent); }
+.copy { display: flex; flex-direction: column; gap: 32px; }
+h1 { font-size: {{title_px}}px; color: #0f1c27; font-weight: 700; }
+.sub { color: #3d4c5a; max-width: 760px; }
+.chip { color: #0f1c27; box-shadow: inset 0 0 0 1.5px rgba(15,28,39,.3); }
+.meta { border-top: 2px solid #0f1c27; padding-top: 24px; gap: 20px 40px; grid-auto-flow: row; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, 1.3fr); }
+.meta .mi b { color: #6b7a88; } .meta .mi span { color: #0f1c27; }
+.pages { position: absolute; top: 96px; inset-inline-end: 96px; width: 520px; height: 820px; }
+.th { position: absolute; background: #fff; border-radius: 3px; box-shadow: 0 0 0 1px rgba(15,28,39,.14), 0 34px 50px -26px rgba(15,28,39,.5); width: 400px; height: 520px; }
+.th1 { top: 250px; inset-inline-start: 0; z-index: 3; }
+.th2 { top: 130px; inset-inline-start: 56px; z-index: 2; opacity: .96; }
+.th3 { top: 10px; inset-inline-start: 112px; z-index: 1; }
+.th.ph { background: #e6ebf0; min-width: 0; min-height: 0; }
+.pn { position: absolute; bottom: 80px; inset-inline-end: 96px; font-size: 20px; color: #6b7a88; }
+</style></head>
+<body><div class="card"><div class="band"></div>
+  <div class="left">
+    <div class="copy"><span class="kind">{{kind_label}}</span><h1>{{title}}</h1><p class="sub">{{subtitle}}</p><div class="chips">{{chips_html}}</div></div>
+    <div class="meta"><div class="mi"><b>{{l_system}}</b><span>{{system}}</span></div><div class="mi"><b>{{l_date}}</b><span>{{date}}</span></div><div class="mi"><b>{{l_designs}}</b><span>{{options_text}}</span></div><div class="mi"><b>{{l_decision}}</b><span>{{picked_text}}</span></div></div>
+  </div>
+  <div class="pages">{{thumbs_html}}</div>
+</div></body></html>

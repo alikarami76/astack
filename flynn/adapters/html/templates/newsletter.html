@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[نام خبرنامه] · [شمارهٔ خبرنامه]</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="newsletter.css">
+</head>
+<body class="newsletter">
+<!-- editorial newsletter: a 640px digest. Each block with data-shot becomes one PNG in the email; data-link is
+     where clicking that block goes (relative links are joined to email_pack.py --link-base).
+       render.py page/index.html --width 720 --pad 0
+       email_pack.py <run> --subject "[موضوع]" [--to ...] [--link-base https://...]
+     The .eml opens in Outlook as an unsent draft; flynn never sends mail. Blanks stay in [brackets]. -->
+<main class="nl">
+
+<header class="nl-head" data-shot="head">
+  <div class="wordmark">فروشگاه نمونه</div>
+  <div class="issue"><b>[نام خبرنامه، مثلاً «خبرنامهٔ فروشگاه نمونه»]</b><span>[شمارهٔ ۱۲ · مهر ۱۴۰۵]</span></div>
+</header>
+
+<section class="nl-lead" data-shot="lead" data-link="[لینک خبر اصلی]">
+  <div class="kicker">[خبر اصلی]</div>
+  <h1>[تیتر خبر اصلی در یک یا دو خط]</h1>
+  <div class="shot"><img src="img/[lead].png" alt="[توضیح تصویر]"></div>
+  <p>[دو یا سه جمله: چه چیزی تغییر کرد، برای چه کسی مهم است و خواننده از امروز چه کاری می‌تواند بکند.]</p>
+  <a class="more" href="#">بیشتر بخوانید</a>
+</section>
+
+<section class="nl-story" data-shot="story-1" data-link="[لینک]">
+  <div class="kicker">[برچسب، مثلاً «انتشار»]</div>
+  <h2>[تیتر خبر کوتاه]</h2>
+  <p>[یک یا دو جمله با یک عدد یا نتیجهٔ مشخص.]</p>
+  <a class="more" href="#">بیشتر بخوانید</a>
+</section>
+
+<section class="nl-story" data-shot="story-2" data-link="[لینک]">
+  <div class="kicker">[برچسب، مثلاً «آزمایش»]</div>
+  <h2>[تیتر خبر کوتاه]</h2>
+  <p>[یک یا دو جمله با یک عدد یا نتیجهٔ مشخص.]</p>
+  <a class="more" href="#">بیشتر بخوانید</a>
+</section>
+
+<section class="nl-story" data-shot="story-3" data-link="[لینک]">
+  <div class="kicker">[برچسب، مثلاً «در راه»]</div>
+  <h2>[تیتر خبر کوتاه]</h2>
+  <p>[یک یا دو جمله دربارهٔ چیزی که به‌زودی منتشر می‌شود و تاریخش.]</p>
+  <a class="more" href="#">بیشتر بخوانید</a>
+</section>
+
+<section class="nl-numbers" data-shot="numbers">
+  <h2>[این ماه در سه عدد]</h2>
+  <div class="row">
+    <div class="n key"><div class="big">[۹۲٪]</div><p>[معنی عدد در یک جمله]</p></div>
+    <div class="n"><div class="big">[۱٬۲۰۰]</div><p>[معنی عدد در یک جمله]</p></div>
+    <div class="n"><div class="big">[۵۰ هزار]</div><p>[معنی عدد در یک جمله]</p></div>
+  </div>
+</section>
+
+<footer class="nl-foot" data-shot="foot">
+  <b>[نام]</b> · [سمت] · [تیم]<br>
+  [برای پیشنهاد خبر یا سؤال، به همین ایمیل جواب دهید.]
+</footer>
+
+</main>
+</body>
+</html>

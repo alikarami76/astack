@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="#5ad7f2" stroke-linecap="round" stroke-linejoin="round">
+  <title>flynn</title>
+  <rect x="2.5" y="2.5" width="27" height="27" rx="7" stroke-width="1.5" opacity=".55"/>
+  <path d="M12.5 24V13.5a4 4 0 0 1 4-4H21" stroke-width="2.4"/>
+  <path d="M9 16.5h8" stroke-width="2.4"/>
+  <circle cx="23.6" cy="9.5" r="1.6" fill="#5ad7f2" stroke="none"/>
+</svg>

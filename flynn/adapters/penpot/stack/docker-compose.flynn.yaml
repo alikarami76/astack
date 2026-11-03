@@ -1,0 +1,7 @@
+# flynn overlay on the stock frontend image (no rebuild): extra nginx route and an injected script.
+services:
+  penpot-frontend:
+    volumes:
+      - ./flynn-overlay/nginx/flynn-locations.conf:/etc/nginx/overrides/server.d/flynn-locations.conf:ro
+      - ./flynn-overlay/index.html:/var/www/app/index.html:ro
+      - ./flynn-overlay/www:/var/www/flynn:ro

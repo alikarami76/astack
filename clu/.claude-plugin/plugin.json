@@ -1,0 +1,7 @@
+{
+  "name": "clu",
+  "displayName": "clu — data analyst",
+  "version": "0.1.0",
+  "description": "Truth-seeking data analyst agents for your own data, with a SQLite knowledge base, run records and telemetry.",
+  "author": {"name": "clu"}
+}

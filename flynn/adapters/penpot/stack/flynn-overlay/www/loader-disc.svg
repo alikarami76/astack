@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Loading">
+  <!-- flynn loader: the identity disc drawn as light only, in one white. No body, no colour change.
+       The SVG is static on purpose: declutter.css turns and breathes the whole image on the compositor,
+       which stays smooth where animating blurred SVG paths stutters. -->
+  <defs>
+    <filter id="g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter>
+    <filter id="h" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+  <g fill="none" stroke="#fff" stroke-linecap="round">
+    <!-- wide, faint halo -->
+    <g opacity=".22" filter="url(#h)" stroke-width="9">
+      <path d="M50 12 A38 38 0 1 1 31 17.09"/>
+      <path d="M50 69 A19 19 0 1 1 66.5 59.5"/>
+    </g>
+    <!-- close glow -->
+    <g opacity=".6" filter="url(#g)" stroke-width="5.5">
+      <path d="M50 12 A38 38 0 1 1 31 17.09"/>
+      <path d="M50 69 A19 19 0 1 1 66.5 59.5"/>
+    </g>
+    <!-- the light itself: outer ring (330 degrees) and hub ring (300 degrees, broken on the opposite side) -->
+    <path d="M50 12 A38 38 0 1 1 31 17.09" stroke-width="2.6"/>
+    <path d="M50 69 A19 19 0 1 1 66.5 59.5" stroke-width="1.8"/>
+  </g>
+  <g fill="#fff">
+    <g opacity=".6" filter="url(#g)">
+      <circle cx="70.7" cy="29.3" r="2"/><circle cx="70.7" cy="70.7" r="2"/>
+      <circle cx="29.3" cy="70.7" r="2"/><circle cx="29.3" cy="29.3" r="2"/>
+    </g>
+    <circle cx="70.7" cy="29.3" r="1.5"/><circle cx="70.7" cy="70.7" r="1.5"/>
+    <circle cx="29.3" cy="70.7" r="1.5"/><circle cx="29.3" cy="29.3" r="1.5"/>
+  </g>
+</svg>

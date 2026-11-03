@@ -1,0 +1,1252 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>flynn</title>
+<script>
+  // Load Penpot's own stylesheet and theme from the editor (same origin), so every design-system class,
+  // colour variable and font here is exactly Penpot's, in both the dark and the light theme.
+  (function () {
+    try {
+      const pd = parent.document;
+      for (const l of pd.querySelectorAll('link[rel=stylesheet]')) {
+        const k = document.createElement('link'); k.rel = 'stylesheet'; k.href = l.href; document.head.appendChild(k);
+      }
+      document.documentElement.className = pd.documentElement.className;
+      document.addEventListener('DOMContentLoaded', () => { document.body.className = pd.body.className; });
+      // Glass theme (TEST): follow the editor's switch, live.
+      const k = document.createElement('link'); k.rel = 'stylesheet'; k.href = '/flynn/tron.css'; document.head.appendChild(k);
+      const mirror = () => { const t = pd.documentElement.dataset.flynnTheme;
+        if (t) document.documentElement.dataset.flynnTheme = t; else delete document.documentElement.dataset.flynnTheme; };
+      mirror(); new MutationObserver(mirror).observe(pd.documentElement, { attributes: true, attributeFilter: ['data-flynn-theme'] });
+    } catch (e) {}
+  })();
+</script>
+<style>
+  @font-face { font-family: "flynn-fa"; font-weight: 400; src: url(fonts/Vazirmatn-Regular.ttf) format("truetype"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+200C-200F, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "flynn-fa"; font-weight: 500; src: url(fonts/Vazirmatn-Medium.ttf) format("truetype"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+200C-200F, U+FB50-FDFF, U+FE70-FEFF; }
+  @font-face { font-family: "flynn-fa"; font-weight: 600 700; src: url(fonts/Vazirmatn-Bold.ttf) format("truetype"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+200C-200F, U+FB50-FDFF, U+FE70-FEFF; }
+  :root { --flynn-font: "worksans", "flynn-fa", "vazirmatn", sans-serif; }
+  [hidden] { display: none !important; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--color-background-primary); color: var(--color-foreground-primary);
+         font-family: var(--flynn-font); font-size: 0.75rem; line-height: 1.4;
+         display: flex; flex-direction: column; overflow: hidden; }
+  button { font-family: inherit; }
+  .icon { width: 16px; height: 16px; flex: none; }
+  /* section header, like Penpot's sidebar title bars */
+  .head { display: flex; align-items: center; gap: var(--sp-xs, 4px); padding: 0 var(--sp-m, 12px); min-height: 2.5rem; }
+  .head .title { flex: 1; min-width: 0; color: var(--color-foreground-secondary); text-transform: uppercase;
+                 font-weight: 500; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .head .file { text-transform: none; font-weight: 400; color: var(--color-foreground-secondary); opacity: .8; }
+  .mode { padding: 0 var(--sp-m, 12px) var(--sp-s, 8px); }
+  .mode .main_ui_ds_layout_tab_switcher__tab-list { grid-template-columns: 1fr 1fr; }
+  .mode-hint { color: var(--color-foreground-secondary); margin-top: var(--sp-xs, 4px); font-size: 0.6875rem; }
+  .sep { border-top: 1px solid var(--color-background-quaternary); }
+  /* thread, laid out like Penpot comment threads */
+  .thread { flex: 1; overflow-y: auto; padding: var(--sp-s, 8px) var(--sp-m, 12px) var(--sp-m, 12px); display: flex; flex-direction: column; gap: var(--sp-m, 12px); }
+  .msg { display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: var(--sp-s, 8px); }
+  /* the chat never grows wider than the panel: long paths and words wrap instead */
+  html, body { max-width: 100%; overflow-x: hidden; }
+  .thread { overflow-x: hidden; }
+  .msg > *, .card, .card *, .pill, .sc, .runrow, .steps, .q, .choice { min-width: 0; max-width: 100%; }
+  .files, .card li, .card p, .card a { overflow-wrap: anywhere; word-break: break-word; }
+  .avatar { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 500; font-size: 0.75rem; }
+  .avatar.flynn { background: var(--color-accent-primary); color: var(--color-background-secondary); }
+  .avatar.you { background: var(--color-background-quaternary); color: var(--color-foreground-primary); }
+  .who { color: var(--color-foreground-primary); font-weight: 500; line-height: 24px; }
+  .body { grid-column: 2; color: var(--color-foreground-primary); overflow-wrap: break-word; font-size: 0.8125rem; line-height: 1.6; }
+  .body [dir="rtl"], .body:dir(rtl) { line-height: 1.8; }
+  .choice, .field, .q-text, .q-why, .composer textarea { font-family: var(--flynn-font) !important; }
+
+  .body p { margin: 0 0 10px; } .body > :last-child { margin-bottom: 0; }
+  .body ul, .body ol { margin: 0 0 10px; padding-inline-start: 18px; }
+  .body li { margin: 0 0 6px; padding-inline-start: 2px; } .body li:last-child { margin-bottom: 0; }
+  .body li::marker { color: var(--color-foreground-secondary); }
+  .body h4 { margin: 14px 0 6px; font-size: .8125rem; font-weight: 600; color: var(--fg-ice, var(--color-foreground-primary)); }
+  .body h4:first-child { margin-top: 0; }
+  .body pre { margin: 0 0 10px; padding: 8px 10px; border-radius: 6px; background: var(--color-background-tertiary); overflow-x: auto; }
+  .body pre code { background: none; padding: 0; white-space: pre; }
+  .body bdi { unicode-bidi: isolate; font-family: "Vazirmatn", "vazirmatn", sans-serif; }
+  .body code { font-family: "robotomono", monospace; font-size: 0.6875rem; background: var(--color-background-tertiary); border-radius: 4px; padding: 0 4px; }
+  .body b { font-weight: 600; }
+  .ctx { grid-column: 2; margin-top: var(--sp-xs, 4px); display: flex; align-items: center; gap: 4px; color: var(--color-foreground-secondary); font-size: 0.6875rem; }
+  .ctx .icon { width: 12px; height: 12px; }
+  .ctx span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .note { grid-column: 2; color: var(--color-foreground-secondary); font-style: italic; margin-top: var(--sp-xxs, 2px); }
+  /* collapsed tool steps */
+  .steps { grid-column: 2; margin-top: var(--sp-xs, 4px); }
+  .steps summary { cursor: pointer; color: var(--color-foreground-secondary); list-style: none; display: inline-flex; align-items: center; gap: 4px; }
+  .steps summary::-webkit-details-marker { display: none; }
+  .steps summary .icon { width: 12px; height: 12px; transition: transform .15s; }
+  .steps[open] summary .icon { transform: rotate(90deg); }
+  .steps ol { margin: var(--sp-xs, 4px) 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .steps li { color: var(--color-foreground-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .steps li b { color: var(--color-foreground-primary); font-weight: 500; margin-inline-end: 4px; }
+  /* commands (permission requests, allowed rules): one collapsed line, the full command on demand */
+  .rules { grid-column: 2; display: flex; flex-direction: column; gap: 2px; margin-top: var(--sp-xxs, 2px); min-width: 0; }
+  .rule { min-width: 0; }
+  .rule summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 4px; min-width: 0; margin: 0; padding: 0;
+                 color: var(--color-foreground-secondary); }
+  .rule summary::-webkit-details-marker { display: none; }
+  .rule summary .icon { width: 12px; height: 12px; flex: none; transition: transform .15s; }
+  .rule[open] summary .icon { transform: rotate(90deg); }
+  .rule summary b { color: var(--color-foreground-primary); font-weight: 500; flex: none; }
+  .rule summary span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; direction: ltr; }
+  .rule pre { margin: var(--sp-xs, 4px) 0 var(--sp-xxs, 2px); padding: var(--sp-s, 8px); background: var(--color-background-primary);
+             border: 1px solid var(--rim, rgba(255,255,255,.22)); border-radius: var(--br-4, 4px); max-height: 220px; overflow: auto;
+             font: 400 11px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--color-foreground-primary);
+             white-space: pre-wrap; word-break: break-all; direction: ltr; text-align: left; }
+  .sc .rules { grid-column: auto; margin-top: var(--sp-xs, 4px); }
+  /* cards: Penpot sidebar sections */
+  .card { grid-column: 2; margin-top: var(--sp-s, 8px); background: var(--color-background-tertiary); border-radius: var(--br-8, 8px);
+          padding: var(--sp-m, 12px); display: flex; flex-direction: column; gap: var(--sp-s, 8px); }
+  .card-title { text-transform: uppercase; font-weight: 500; color: var(--color-foreground-secondary); font-size: 0.6875rem; letter-spacing: .02em; }
+  .q { display: flex; flex-direction: column; gap: var(--sp-xs, 4px); padding-top: var(--sp-s, 8px); border-top: 1px solid var(--color-background-quaternary); }
+  .q:first-of-type { border-top: 0; padding-top: 0; }
+  .q-text { color: var(--color-foreground-primary); font-weight: 500; }
+  .q-why { color: var(--color-foreground-secondary); }
+  .choice { display: flex; align-items: flex-start; gap: var(--sp-s, 8px); width: 100%; text-align: start; cursor: pointer;
+            background: var(--color-background-primary); color: var(--color-foreground-primary); border: 1px solid var(--color-background-quaternary);
+            border-radius: var(--br-8, 8px); padding: var(--sp-s, 8px); font-size: 0.75rem; line-height: 1.4; }
+  .choice:hover { border-color: var(--color-accent-primary-muted, var(--color-accent-primary)); }
+  .choice.on { border-color: var(--color-accent-primary); }
+  .choice .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--color-foreground-secondary); flex: none; margin-top: 2px; }
+  .choice.on .dot { border-color: var(--color-accent-primary); box-shadow: inset 0 0 0 3px var(--color-background-primary); background: var(--color-accent-primary); }
+  .choice.multi .dot { border-radius: 3px; }
+  .choice.multi.on .dot { box-shadow: none; background: var(--color-accent-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center/10px no-repeat; }
+  .choice small { display: block; color: var(--color-foreground-secondary); }
+  .field { width: 100%; font-family: inherit; font-size: 0.75rem; line-height: 1.4; color: var(--color-foreground-primary);
+           background: var(--color-background-primary); border: 1px solid var(--color-background-quaternary); border-radius: var(--br-8, 8px); padding: var(--sp-s, 8px); resize: none; }
+  .field:focus { outline: none; border-color: var(--color-accent-primary); }
+  .files { color: var(--color-foreground-secondary); font-size: 0.6875rem; overflow-wrap: anywhere; }
+  .row { display: flex; gap: var(--sp-s, 8px); align-items: center; flex-wrap: wrap; }
+  .pill { grid-column: 2; margin-top: var(--sp-s, 8px); }
+  .pill .row { margin-top: var(--sp-s, 8px); }
+  .runrow { grid-column: 2; margin-top: var(--sp-s, 8px); display: flex; align-items: center; gap: var(--sp-s, 8px);
+            border: 1px solid var(--color-background-quaternary); border-radius: var(--br-8, 8px); padding: var(--sp-xs, 4px) var(--sp-xs, 4px) var(--sp-xs, 4px) var(--sp-s, 8px); }
+  .runrow .name { flex: 1; min-width: 0; color: var(--color-foreground-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; }
+  .empty { margin: auto; text-align: center; color: var(--color-foreground-secondary); display: flex; flex-direction: column; align-items: center; gap: var(--sp-s, 8px); padding: var(--sp-xl, 24px); }
+  .empty .icon { width: 24px; height: 24px; color: var(--color-foreground-secondary); }
+  /* composer, like Penpot's comment input */
+  .composer { padding: var(--sp-m, 12px); display: flex; flex-direction: column; gap: var(--sp-s, 8px); }
+  .box { position: relative; }
+  .composer .main_ui_comments__comment-input { max-inline-size: none; block-size: auto; min-height: 4.5rem; max-height: 12rem; display: block;
+          color: var(--color-foreground-primary); padding-inline-end: 2.75rem; padding-bottom: 2.5rem; font-family: var(--flynn-font); font-size: 0.8125rem; line-height: 1.5; }
+  .box .send { position: absolute; right: var(--sp-s, 8px); bottom: var(--sp-s, 8px); --button-width: 1.75rem; --button-height: 1.75rem; padding: 0;
+               display: grid; place-items: center; border-radius: 0.5rem; }
+  .box .send .icon { width: 16px; height: 16px; }
+  .box .send:disabled { cursor: default; }
+  .full { width: 100%; justify-content: center; }
+  .composer .main_ui_comments__comment-input:focus { outline: none; border-color: var(--color-accent-primary); }
+  /* what flynn is doing, just above the message box, in light orange so it reads as activity, not content */
+  .status { color: #ffc58f; font-size: 0.75rem; line-height: 1.3; min-height: 0; margin: -2px 2px -2px; }
+  .status:empty { display: none; }
+  .st-row { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; }
+  .st-main { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px; overflow: hidden; }
+  .st-main .working { flex: none; }
+  .st-detail { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: rgba(255,197,143,.72); }
+  .st-detail:not(:empty)::before { content: '· '; }
+  .st-time { flex: none; font-variant-numeric: tabular-nums; color: rgba(255,197,143,.72); }
+  .st-warn { margin-top: 4px; white-space: normal; color: #ffd9a8; }
+  .st-warn:empty { display: none; }
+  .status.quiet .st-time { color: #ffc46b; }
+  .working::after { content: '…'; animation: blink 1.2s infinite; } @keyframes blink { 50% { opacity: .2; } }
+  /* ---- glass theme: panel parts; shared rules and the rim-light variables live in tron.css ---- */
+  [data-flynn-theme="glass"], [data-flynn-theme="glass"] body.default { background: transparent; color-scheme: dark; }
+  [data-flynn-theme="glass"] body.default .sep { border-top: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(150,226,255,.26) 30%, rgba(150,226,255,.26) 70%, transparent); }
+  [data-flynn-theme="glass"] body.default .head .title { letter-spacing: .07em; font-size: .6875rem; }
+  [data-flynn-theme="glass"] body.default .card-title { letter-spacing: .07em; }
+  [data-flynn-theme="glass"] body.default .card { background: linear-gradient(180deg, rgba(200,235,255,.07), rgba(200,235,255,.03));
+      box-shadow: var(--fg-rim); border-radius: .75rem; }
+  [data-flynn-theme="glass"] body.default .choice { background: rgba(6,8,11,.5); border-color: transparent; box-shadow: var(--fg-rim); }
+  [data-flynn-theme="glass"] body.default .choice:hover { border-color: transparent; box-shadow: var(--fg-rim-hover); }
+  [data-flynn-theme="glass"] body.default .choice.on { border-color: transparent; background: var(--fg-tint-lit), rgba(6,8,11,.5); box-shadow: var(--fg-rim-lit); }
+  [data-flynn-theme="glass"] body.default .choice.on .dot { border-color: var(--fg-light); box-shadow: inset 0 0 0 3px #06080b, 0 0 5px rgba(84,200,255,.45); }
+  [data-flynn-theme="glass"] body.default .field { background: rgba(6,8,11,.5); border-color: transparent; box-shadow: var(--fg-rim); }
+  [data-flynn-theme="glass"] body.default .runrow { border-color: transparent; box-shadow: var(--fg-rim); }
+  [data-flynn-theme="glass"] body.default .avatar.flynn { box-shadow: 0 0 0 1px rgba(200,242,255,.35), 0 0 10px rgba(84,200,255,.30); }
+  [data-flynn-theme="glass"] body.default .composer .main_ui_comments__comment-input { background: rgba(6,8,11,.55);
+      border-color: transparent; border-radius: .75rem; box-shadow: var(--fg-rim); }
+  [data-flynn-theme="glass"] body.default .composer .main_ui_comments__comment-input:focus { box-shadow: var(--fg-rim-lit); }
+  [data-flynn-theme="glass"] body.default .box .send { border-radius: .5rem; }
+  [data-flynn-theme="glass"] body.default .box .send:disabled { box-shadow: var(--fg-rim); background-image: none; }
+  [data-flynn-theme="glass"] body.default :is(.choice, .field, .card, .runrow) {
+      transition: background 0.22s var(--fg-ease), box-shadow 0.28s var(--fg-ease), transform 0.32s var(--fg-glide); }
+  [data-flynn-theme="glass"] body.default .choice:active { transform: scale(.985); transition-duration: .09s; }
+  [data-flynn-theme="glass"] body.default .msg { animation: fg-glass-in .26s var(--fg-ease) both; }
+  /* selection box: what goes to flynn with the next message */
+  .selbox { display: flex; align-items: center; gap: var(--sp-s, 8px); padding: 6px 6px 6px 8px; border-radius: .625rem;
+            background: var(--color-background-tertiary); min-width: 0; animation: fg-in .2s ease both; }
+  .selthumb { width: 40px; height: 40px; flex: none; border-radius: 6px; object-fit: contain; background: repeating-conic-gradient(#ffffff10 0 25%, transparent 0 50%) 0 0/8px 8px; }
+  .selinfo { flex: 1; min-width: 0; }
+  .seltitle { font-size: .6875rem; color: var(--color-foreground-secondary); text-transform: uppercase; letter-spacing: .06em; }
+  .selnames { color: var(--color-foreground-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .selnames span { color: var(--color-foreground-secondary); }
+  .selx { flex: none; --button-width: 1.5rem; --button-height: 1.5rem; }
+  @keyframes fg-in { from { opacity: 0; transform: translateY(3px); } }
+  /* bottom bar: design system chip (like a project picker) and status */
+  .bar { position: relative; display: flex; align-items: center; gap: var(--sp-s, 8px); min-height: 1.75rem; }
+  .syschip { display: inline-flex; align-items: center; gap: 6px; max-width: 70%; height: 1.75rem; padding: 0 8px; border: 0; cursor: pointer;
+             border-radius: .5rem; background: transparent; color: var(--color-foreground-secondary); font: 500 .75rem/1 var(--flynn-font); }
+  .syschip:hover, .syschip[aria-expanded=true] { background: var(--color-background-tertiary); color: var(--color-foreground-primary); }
+  .syschip.on { color: var(--color-accent-primary); }
+  .syschip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .syschip .icon { width: 14px; height: 14px; }
+  .syschip .chev { width: 12px; height: 12px; opacity: .7; }
+  .sysmenu { position: absolute; left: 0; bottom: calc(100% + 6px); z-index: 5; min-width: 220px; max-width: 100%; padding: 4px;
+             border-radius: .625rem; background: var(--color-background-primary); border: 1px solid var(--color-background-quaternary);
+             box-shadow: 0 12px 32px rgba(0,0,0,.4); animation: fg-in .16s ease both; }
+  .sysopt { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; border-radius: .4rem; cursor: pointer; text-align: start;
+            background: transparent; color: var(--color-foreground-primary); font: 400 .75rem/1.3 var(--flynn-font); }
+  .sysopt:hover, .sysopt:focus-visible { background: var(--color-background-tertiary); outline: none; }
+  .sysopt small { display: block; color: var(--color-foreground-secondary); }
+  .sysopt .tick { width: 14px; flex: none; color: var(--color-accent-primary); }
+  .sysopt .grow { flex: 1; min-width: 0; }
+  .sysmenu hr { border: 0; border-top: 1px solid var(--color-background-quaternary); margin: 4px 2px; }
+  /* design system change card */
+  .chg-items { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .chg-items li { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: baseline; font-size: .75rem; }
+  .chg-items .k { color: var(--color-foreground-secondary); font-size: .6875rem; text-transform: uppercase; letter-spacing: .05em; }
+  .chg-items .v { min-width: 0; overflow-wrap: anywhere; }
+  .chg-items del { color: var(--color-foreground-secondary); text-decoration: line-through; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-inline-end: 4px; box-shadow: inset 0 0 0 1px #ffffff30; }
+  [data-flynn-theme="glass"] body.default .selbox { background: rgba(6,8,11,.5); box-shadow: var(--fg-rim); }
+  [data-flynn-theme="glass"] body.default .sysmenu { background: rgba(12,16,22,.985); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+      border-color: transparent; box-shadow: var(--fg-rim), 0 14px 34px rgba(0,0,0,.55); }
+  [data-flynn-theme="glass"] body.default .syschip:hover, [data-flynn-theme="glass"] body.default .syschip[aria-expanded=true] { background: rgba(170,228,255,.11); }
+  /* status lines (progress, done, errors): the same glass as cards, with a lit dot for the level */
+  .sc { grid-column: 2; margin-top: var(--sp-s, 8px); display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px;
+        border-radius: .75rem; background: linear-gradient(180deg, rgba(200,235,255,.06), rgba(200,235,255,.025)); box-shadow: var(--fg-rim, inset 0 0 0 1px #ffffff14);
+        color: var(--color-foreground-primary); font-size: .75rem; line-height: 1.5; animation: fg-in .2s ease both; }
+  .sc .dot { --c: var(--fg-light, #8fe3ff); width: 6px; height: 6px; flex: none; margin-top: .5em; border-radius: 50%; background: var(--c);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 14%, transparent), 0 0 8px var(--c); }
+  .sc.lvl-success .dot { --c: #7ee8c0; } .sc.lvl-warning .dot { --c: #ffc46b; } .sc.lvl-error .dot { --c: #ff8a8a; }
+  .sc.busy .dot { animation: sc-pulse 1.4s ease-in-out infinite; }
+  @keyframes sc-pulse { 50% { opacity: .35; box-shadow: 0 0 0 3px transparent, 0 0 2px var(--c); } }
+  .sc .sc-body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .sc .sc-body b { font-weight: 600; color: var(--fg-ice, var(--color-foreground-primary)); }
+  .sc.lvl-error { background: linear-gradient(180deg, rgba(255,120,120,.06), rgba(255,120,120,.015)); }
+  .sc .row { margin-top: 8px; }
+  .sc code { font-family: "robotomono", monospace; font-size: .6875rem; background: rgba(255,255,255,.05); border-radius: 4px; padding: 0 4px; }
+  @media (prefers-reduced-motion: reduce) { .sc.busy .dot { animation: none; } }
+  /* a canvas build: one card that fills in as it goes, then turns into the result */
+  .bld-stage { color: var(--color-foreground-secondary); margin-top: 2px; }
+  .bld-bar { height: 4px; margin-top: 8px; border-radius: 4px; background: rgba(255,255,255,.07); overflow: hidden; }
+  .bld-bar i { display: block; height: 100%; width: 0; border-radius: 4px; background: var(--fg-light, #8fe3ff);
+               box-shadow: 0 0 8px var(--fg-light, #8fe3ff); transition: width .6s ease; }
+  .bld-time { margin-top: 6px; font-size: .6875rem; color: var(--color-foreground-secondary); font-variant-numeric: tabular-nums; }
+  /* the working disc: an orange-lit identity disc spinning. The broken rim, the ticks and the hub turn; the
+     reflection and the shading stay where the light is, which is what makes it read as a turning object. */
+  .spin { width: 16px; height: 16px; flex: none; vertical-align: -3px; margin-inline-end: 7px; overflow: visible; }
+  .spin .turn { transform-origin: 8px 8px; animation: disc-turn 1.1s linear infinite; }
+  .spin .hub { transform-origin: 8px 8px; animation: disc-turn 2.2s linear infinite reverse; }
+  @keyframes disc-turn { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spin .turn, .spin .hub { animation-duration: 6s; } }
+  .status { display: flex; align-items: center; }
+  /* slash commands */
+  .cmdmenu { position: absolute; left: 0; right: 0; bottom: calc(100% + 6px); z-index: 6; max-height: 320px; overflow-y: auto; padding: 4px;
+             border-radius: .75rem; background: rgba(12,16,22,.985); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+             box-shadow: var(--fg-rim, 0 0 0 1px #ffffff1a), 0 14px 34px rgba(0,0,0,.55); animation: fg-in .14s ease both; }
+  .cmdgroup { color: var(--color-foreground-secondary); font-size: .625rem; letter-spacing: .07em; text-transform: uppercase; padding: 8px 8px 3px; }
+  .cmd { display: grid; grid-template-columns: auto 1fr; gap: 0 10px; align-items: baseline; width: 100%; text-align: start; border: 0; cursor: pointer;
+         padding: 6px 8px; border-radius: .45rem; background: transparent; color: var(--color-foreground-primary); font: 400 .75rem/1.35 var(--flynn-font); }
+  .cmd b { font: 500 .75rem/1.35 "robotomono", monospace; color: var(--fg-light, var(--color-accent-primary)); }
+  .cmd span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cmd small { grid-column: 2; color: var(--color-foreground-secondary); font-size: .6875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cmd.on, .cmd:hover { background: rgba(170,228,255,.13); }
+  .cmdempty { padding: 10px; color: var(--color-foreground-secondary); }
+  /* attachments */
+  .atts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .att { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: 26px; padding: 0 4px 0 8px; border-radius: .5rem;
+         background: rgba(6,8,11,.5); box-shadow: var(--fg-rim, 0 0 0 1px #ffffff1a); font-size: .6875rem; color: var(--color-foreground-primary); }
+  .att span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+  .att small { color: var(--color-foreground-secondary); }
+  .att.busy span::after { content: ' · uploading…'; color: var(--color-foreground-secondary); }
+  .att button { border: 0; background: transparent; color: var(--color-foreground-secondary); cursor: pointer; width: 18px; height: 18px; border-radius: 4px; display: grid; place-items: center; }
+  .att button:hover { color: var(--color-foreground-primary); background: rgba(255,255,255,.06); }
+  .plusbtn { flex: none; --button-width: 1.75rem; --button-height: 1.75rem; margin-inline-end: -4px; }
+  .skill-pre { margin: 0; max-height: 160px; overflow: auto; white-space: pre-wrap; font: 400 .6875rem/1.5 "robotomono", monospace; color: var(--color-foreground-secondary); background: rgba(6,8,11,.5); border-radius: .5rem; padding: 8px 10px; }
+  .attbtn { flex: none; --button-width: 1.75rem; --button-height: 1.75rem; }
+  .box.drop .main_ui_comments__comment-input { box-shadow: var(--fg-rim-lit, 0 0 0 1px var(--color-accent-primary)) !important; }
+  .ufiles { grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .ufiles span { font-size: .6875rem; color: var(--color-foreground-secondary); padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,.05); }
+  /* info and settings cards */
+  /* settings: flynn on your computer (team server) */
+  .agent-st { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+  .agent-st .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-foreground-secondary); flex: none; }
+  .agent-st.on .dot { background: var(--color-accent-success, #2fbf71); }
+  .install-cmd { margin: 8px 0 0; padding: 8px 10px; border-radius: .5rem; background: rgba(6,8,11,.5); white-space: pre-wrap;
+                 overflow-wrap: anywhere; font: 400 .6875rem/1.5 "robotomono", monospace; color: var(--color-foreground-primary);
+                 user-select: all; }
+  .agent-setup .row { margin-top: 8px; }
+  .agent-setup [hidden] { display: none !important; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: .75rem; }
+  .kv dt { color: var(--color-foreground-secondary); } .kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .proto-links { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; font-size: .75rem; }
+  .proto-links li::before { content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--fg-light, #8fe3ff);
+         box-shadow: 0 0 6px var(--fg-light, #8fe3ff); margin-inline-end: 8px; vertical-align: 2px; }
+  /* conversation history */
+  .hist { position: fixed; left: 0; right: 0; top: 2.5rem; bottom: 0; z-index: 8; display: flex; flex-direction: column;
+          background: var(--color-background-primary); animation: fg-in .18s ease both; }
+  [data-flynn-theme="glass"] .hist { background: rgba(10,13,18,.97); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  .hist-head { display: flex; align-items: center; gap: 6px; padding: 0 var(--sp-m, 12px) 0 6px; min-height: 2.5rem; }
+  .hist-head .t { flex: 1; color: var(--color-foreground-secondary); text-transform: uppercase; letter-spacing: .07em; font-weight: 500; font-size: .6875rem; }
+  .hist-search { margin: 0 var(--sp-m, 12px) var(--sp-s, 8px); }
+  .hist-list { flex: 1; overflow-y: auto; padding: 0 var(--sp-s, 8px) var(--sp-m, 12px); display: flex; flex-direction: column; gap: 2px; }
+  .hi { position: relative; display: block; width: 100%; text-align: start; border: 0; cursor: pointer; border-radius: .625rem; padding: 9px 36px 9px 10px;
+        background: transparent; color: var(--color-foreground-primary); font: 400 .8125rem/1.4 var(--flynn-font); transition: background .18s; }
+  .hi:hover, .hi:focus-visible { background: rgba(170,228,255,.11); outline: none; }
+  .hi.cur { background: var(--fg-tint-lit, rgba(84,200,255,.08)); box-shadow: var(--fg-rim-lit, none); }
+  .hi .ttl { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .hi .meta { display: block; margin-top: 2px; color: var(--color-foreground-secondary); font-size: .6875rem; }
+  .hi .meta .tag { color: var(--fg-light, var(--color-accent-primary)); }
+  .hi .del { position: absolute; right: 6px; top: 7px; --button-width: 1.5rem; --button-height: 1.5rem; opacity: 0; transition: opacity .15s; }
+  .hi:hover .del, .hi:focus-within .del { opacity: 1; }
+  .hist-group { color: var(--color-foreground-secondary); font-size: .6875rem; letter-spacing: .05em; text-transform: uppercase; padding: 10px 10px 4px; }
+  .hist-empty { margin: auto; padding: 24px; text-align: center; color: var(--color-foreground-secondary); }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: var(--color-background-quaternary); border-radius: 3px; } ::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="title"><span class="file" id="file" hidden></span></div>
+    <button class="main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost" id="libsync" title="Sync design system libraries" aria-label="Sync design system libraries">
+      <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-library"></use></svg></button>
+    <button class="main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost" id="histbtn" title="Conversation history" aria-label="Conversation history">
+      <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-history"></use></svg></button>
+    <button class="main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost" id="reset" title="New conversation" aria-label="New conversation">
+      <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-add"></use></svg></button>
+  </div>
+  <div class="hist" id="hist" hidden role="dialog" aria-label="Conversation history">
+    <div class="hist-head">
+      <button class="main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost" id="histback" title="Back to the chat" aria-label="Back to the chat">
+        <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-arrow-left"></use></svg></button>
+      <div class="t">Conversations</div>
+      <button class="main_ui_ds_buttons_button__button main_ui_ds_buttons_button__button-secondary" id="histnew" type="button">New</button>
+    </div>
+    <div class="hist-search"><input class="field" id="histq" type="search" dir="auto" placeholder="Search conversations"></div>
+    <div class="hist-list" id="histlist"></div>
+  </div>
+  <div class="sep"></div>
+  <div class="thread" id="thread">
+    <div class="empty" id="empty">
+      <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-comments"></use></svg>
+      <div>Describe what you want designed. flynn asks a few questions first and brings you a design contract to approve before it builds.</div>
+    </div>
+  </div>
+  <div class="sep"></div>
+  <div class="composer">
+    <div class="selbox" id="selbox" hidden>
+      <img class="selthumb" id="selthumb" alt="" hidden>
+      <div class="selinfo"><div class="seltitle" id="seltitle"></div><div class="selnames" id="selnames"></div></div>
+      <button class="main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost selx" id="selx" title="Don't send the selection with this message" aria-label="Leave the selection out">
+        <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-close"></use></svg></button>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <div class="atts" id="atts" hidden></div>
+    <div class="box" id="box">
+      <div class="cmdmenu" id="cmdmenu" role="listbox" hidden></div>
+      <textarea class="main_ui_comments__comment-input" id="input" dir="auto" placeholder="Message flynn… (/ for commands)" rows="3"></textarea>
+      <button class="send main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-primary" id="send" title="Send (Enter)" aria-label="Send" disabled>
+        <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V3.5M3.75 7.5 8 3.25l4.25 4.25"/></svg></button>
+      <button class="send main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-secondary" id="stop" title="Stop flynn" aria-label="Stop" hidden>
+        <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-close"></use></svg></button>
+    </div>
+    <div class="bar">
+      <button class="main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost plusbtn" id="plusbtn" type="button" title="Commands (or type /)" aria-label="Commands" aria-haspopup="listbox">
+        <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg></button>
+      <button class="syschip" id="sys" type="button" aria-haspopup="listbox" title="The design system flynn designs from in this conversation">
+        <svg class="icon main_ui_ds_foundations_assets_icon__icon"><use href="#icon-library"></use></svg><span id="syslabel">No design system</span>
+        <svg class="icon chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4.5 6.5 8 10l3.5-3.5"/></svg></button>
+      <div class="sysmenu" id="sysmenu" role="listbox" hidden></div>
+      <button class="main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost attbtn" id="attbtn" type="button" title="Attach files (or drop them on the message field)" aria-label="Attach files">
+        <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M10.5 4.5 5.6 9.4a1.4 1.4 0 0 0 2 2l5-5a2.8 2.8 0 0 0-4-4l-5 5a4.2 4.2 0 0 0 6 6l4.4-4.4"/></svg></button>
+      <input type="file" id="fileinput" multiple hidden>
+    </div>
+  </div>
+<script>
+(() => {
+  // Penpot's icon sprite, cloned from the editor.
+  try {
+    const sym = parent.document.querySelector('svg symbol#icon-add');
+    if (sym) { const sprite = sym.closest('svg').cloneNode(true); sprite.style.display = 'none'; sprite.setAttribute('aria-hidden', 'true'); document.body.prepend(sprite); }
+  } catch (e) {}
+
+  const params = new URLSearchParams(location.search.slice(1));
+  const FILE = params.get('file-id') || 'no-file';
+  const TEAM = params.get('team-id') || '';
+    const fileName = () => { try { return parent.document.title.replace(/\s*-\s*(Penpot|flynn)\s*$/, ''); } catch (e) { return ''; } };
+  const API = '/flynn/api';
+  // The live connection to the server (a WebSocket; see connectLive below).
+  const live = { ws: null, open: false, everOpen: false, tries: 0, n: 0, last: -1, waits: new Map(), es: null, vis: true, visAt: 0 };
+  const $ = (id) => document.getElementById(id);
+  const thread = $('thread'), input = $('input'), sendBtn = $('send'), stopBtn = $('stop'), status = $('status');
+  thread.addEventListener('scroll', () => { stick = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 60; }, { passive: true });
+  new ResizeObserver(() => scroll()).observe(thread);
+  new MutationObserver(() => scroll()).observe(thread, { childList: true, subtree: true });
+  thread.addEventListener('load', () => scroll(), true);           // images in cards finish loading
+  // An unsent message survives a reload (per file).
+  const DRAFT = 'flynn-draft:' + FILE;
+  try { const d = localStorage.getItem(DRAFT); if (d && !input.value) input.value = d; } catch (e) {}
+  let draftT = 0;
+  function clearDraft() { clearTimeout(draftT); try { localStorage.removeItem(DRAFT); } catch (e) {} }
+  input.addEventListener('input', () => { clearTimeout(draftT); draftT = setTimeout(() => {
+    try { if (input.value.trim()) localStorage.setItem(DRAFT, input.value); else localStorage.removeItem(DRAFT); } catch (e) {} }, 250); });
+  $('libsync').addEventListener('click', () => post('/library/sync', { file: FILE }));
+  const showName = (n) => { $('file').textContent = n ? '· ' + n : ''; };
+  const fromHeader = () => { try { const n = parent.document.querySelector('[class*=left_header__file-name]'); return n && (n.getAttribute('title') || n.textContent).trim(); } catch (e) { return ''; } };
+  showName(fromHeader() || (/penpot \|/i.test(fileName()) ? '' : fileName()));
+
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const icon = (id, cls = '') => `<svg class="icon main_ui_ds_foundations_assets_icon__icon ${cls}"><use href="#icon-${id}"></use></svg>`;
+  const btn = (label, variant, attrs = '') => { const [v, ...extra] = variant.split(' '); return `<button class="main_ui_ds_buttons_button__button main_ui_ds_buttons_button__button-${v} ${extra.join(' ')}" ${attrs}>${label}</button>`; };
+  // flynn's markdown, line by line: paragraphs, bullet and numbered lists (a list may follow its lead-in line directly),
+  // headings, code blocks and inline bold, italic and code. Persian runs inside an English sentence (an amount with
+  // «ریال», a quoted button label) are isolated with <bdi>, so their digits and words keep their order.
+  const RTL_RUN = /«?[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF](?:[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF\u200c\u06F0-\u06F90-9\s,.\u066B\u066C:/()%\u2013-]*[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF\u06F0-\u06F9»])?»?|[\u06F0-\u06F9][\u06F0-\u06F9,.\u066B\u066C]*(?:\s+[\u0600-\u06FF\u200c]+)*/g;
+  function inline(src) {
+    let h = esc(src);
+    const ltr = !/^[^A-Za-z]*[\u0600-\u06FF]/.test(src);              // only isolate Persian inside a left-to-right line
+    if (ltr) h = h.replace(RTL_RUN, (m) => /[\u0600-\u06FF\u06F0-\u06F9]/.test(m) ? `<bdi dir="rtl">${m}</bdi>` : m);
+    return h.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s.,;:)!?]|$)/g, '$1<i>$2</i>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+  function md(text) {
+    const lines = String(text).replace(/\r/g, '').trim().split('\n');
+    const out = [];
+    let para = [], list = null, code = null;
+    const flushPara = () => { if (para.length) { out.push('<p dir="auto">' + para.map(inline).join('<br>') + '</p>'); para = []; } };
+    const flushList = () => { if (list) { out.push(`<${list.tag} dir="auto">` + list.items.map((i) => `<li dir="auto">${inline(i)}</li>`).join('') + `</${list.tag}>`); list = null; } };
+    for (const raw of lines) {
+      if (code) { if (/^\s*```/.test(raw)) { out.push(`<pre><code>${esc(code.join('\n'))}</code></pre>`); code = null; } else code.push(raw); continue; }
+      if (/^\s*```/.test(raw)) { flushPara(); flushList(); code = []; continue; }
+      const bullet = /^\s*[-*•]\s+(.*)$/.exec(raw), num = /^\s*(\d+)[.)]\s+(.*)$/.exec(raw), head = /^\s*#{1,4}\s+(.*)$/.exec(raw);
+      if (!raw.trim()) { flushPara(); flushList(); continue; }
+      if (head) { flushPara(); flushList(); out.push(`<h4 dir="auto">${inline(head[1])}</h4>`); continue; }
+      if (bullet || num) {
+        flushPara();
+        const tag = bullet ? 'ul' : 'ol';
+        if (!list || list.tag !== tag) { flushList(); list = { tag, items: [] }; }
+        list.items.push(bullet ? bullet[1] : num[2]); continue;
+      }
+      if (list && /^\s{2,}\S/.test(raw)) { list.items[list.items.length - 1] += ' ' + raw.trim(); continue; }   // a wrapped list item
+      flushList(); para.push(raw);
+    }
+    if (code) out.push(`<pre><code>${esc(code.join('\n'))}</code></pre>`);
+    flushPara(); flushList();
+    return out.join('');
+  }
+  const BLOCK = /(^|\n)\s*`{0,3}\s*(NEEDS_ALIGNMENT|RESULT|BLOCKED)\s*\n\s*run:[\s\S]*$/;
+  // The chat stays at its last message (on load, as history replays, and as images and cards grow) unless the user has
+  // scrolled up to read; scrolling back to the bottom sticks again.
+  let stick = true;
+  const scroll = () => { if (stick) thread.scrollTop = thread.scrollHeight; };
+  const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+
+  // Each speaker's turn is one .msg block; flynn's block collects text, steps, cards and notices.
+  let turnOpen = false;
+  let lastUser = null, flynnMsg = null, flynnBody = null, flynnText = '', steps = null, note = null, running = false, mode = 'penpot';
+  function newMsg(who) {
+    $('empty') && $('empty').remove();
+    const m = el(`<div class="msg"><div class="avatar ${who}">${who === 'flynn' ? 'f' : 'A'}</div><div class="who">${who === 'flynn' ? 'flynn' : 'You'}</div></div>`);
+    thread.appendChild(m); return m;
+  }
+  function flynnBlock() { if (!flynnMsg) { flynnMsg = newMsg('flynn'); flynnBody = null; flynnText = ''; steps = null; } return flynnMsg; }
+  function append(node) { flynnBlock().appendChild(node); scroll(); return node; }
+  const DISC = `<svg class="spin" viewBox="0 0 16 16" aria-hidden="true">
+    <defs><radialGradient id="dk-body" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#3a2a1c"/><stop offset=".6" stop-color="#140d08"/><stop offset="1" stop-color="#050302"/></radialGradient>
+      <linearGradient id="dk-shade" x1=".2" y1=".15" x2=".85" y2=".95"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset=".55" stop-color="#000" stop-opacity=".1"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient>
+      <radialGradient id="dk-glint" cx=".3" cy=".22" r=".45"><stop offset="0" stop-color="#fff3e0" stop-opacity=".75"/><stop offset="1" stop-color="#ffb066" stop-opacity="0"/></radialGradient>
+      <filter id="dk-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".7"/></filter></defs>
+    <circle cx="8" cy="8" r="7.4" fill="url(#dk-body)"/>
+    <g class="turn" fill="none" stroke-linecap="round">
+      <path d="M8 1.6a6.4 6.4 0 1 1-5.6 3.3" stroke="#ff8a2a" stroke-width="2.4" opacity=".55" filter="url(#dk-glow)"/>
+      <path d="M8 1.6a6.4 6.4 0 1 1-5.6 3.3" stroke="#ffa04a" stroke-width="1.6"/>
+      <circle cx="8" cy="2.9" r=".55" fill="#ffd2a1"/><circle cx="12.4" cy="10.6" r=".5" fill="#ff9a3c"/>
+    </g>
+    <g class="hub" fill="none"><path d="M8 4.9a3.1 3.1 0 1 1-2.9 2" stroke="#ffb066" stroke-width="1.1" stroke-linecap="round"/></g>
+    <circle cx="8" cy="8" r="1.1" fill="#ffd9ad"/>
+    <circle cx="8" cy="8" r="7.4" fill="url(#dk-shade)"/>
+    <circle cx="8" cy="8" r="7.4" fill="url(#dk-glint)"/>
+  </svg>`;
+  // The status line says what flynn is doing right now, how long the turn has run and when it last showed a sign of
+  // life, so a quiet turn reads as working or stuck. Built once per turn and updated in place (the disc keeps turning).
+  const act = { on: false, label: '', detail: '', start: 0, last: 0, ping: 0, idle: 0, think: '', startAt: 0 };
+  const FRIENDLY = { 'flynn-librarian': 'Recalling what flynn knows', 'flynn-scout': 'Gathering references', 'flynn-composer': 'Composing options',
+    'flynn-renderer': 'Rendering the options', 'flynn-checker': 'Running the checks', 'flynn-critic': 'Design review',
+    'flynn-curator': 'Recording what was learned', clu: 'Working with clu (data)', quorra: 'Working with quorra (code)' };
+  const fmt = (sec) => { sec = Math.max(0, Math.round(sec)); return sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}m ${String(sec % 60).padStart(2, '0')}s`; };
+  function paintStatus() {
+    if (!act.on) { status.innerHTML = ''; status.className = 'status'; return; }
+    if (!status.querySelector('.st-row')) {
+      status.innerHTML = `<div class="st-row"><span class="st-main">${DISC}<span class="working"></span><span class="st-detail"></span></span>
+        <span class="st-time" title="Time since your message, and since flynn last showed activity"></span></div><div class="st-warn"></div>`;
+    }
+    const now = Date.now(), quiet = (now - act.last) / 1000, lost = act.ping && now - act.ping > 45000;
+    status.querySelector('.working').textContent = act.label || 'flynn is working';
+    status.querySelector('.st-detail').textContent = act.detail || '';
+    status.querySelector('.st-time').textContent = fmt((now - act.start) / 1000) + (quiet >= 10 ? ` · last activity ${fmt(quiet)} ago` : '');
+    let warn = '';
+    if (lost) warn = 'Lost contact with the flynn desk server. It may have stopped: reload this panel to check.';
+    else if (quiet > 120) warn = `Nothing new for ${fmt(quiet)}, but flynn is still running${act.ping ? ` (the server checked in ${fmt((now - act.ping) / 1000)} ago)` : ''}. ` +
+      'A long step can stay quiet for a few minutes. If this keeps growing, press Stop.';
+    status.className = 'status' + (warn ? ' quiet' : '');
+    status.querySelector('.st-warn').textContent = warn;
+  }
+  setInterval(() => { if (act.on) paintStatus(); }, 1000);
+  function setRunning(on, label) {
+    running = on; sendBtn.hidden = on; stopBtn.hidden = !on; sendBtn.disabled = on || !input.value.trim();
+    if (on) {
+      if (!act.on) { act.on = true; act.start = act.startAt || Date.now(); act.detail = ''; act.think = ''; act.idle = 0; }
+      act.startAt = 0; act.last = Date.now();
+      if (label) act.label = label;
+    } else { act.on = false; act.label = ''; act.detail = ''; act.think = ''; status.innerHTML = ''; }
+    paintStatus();
+  }
+  function activity(detail, label) {
+    if (!running) setRunning(true);
+    act.last = Date.now(); act.detail = detail || '';
+    if (label !== undefined) act.label = label;
+    paintStatus();
+  }
+  // A tool call in plain words: its own description when it has one ("Validate option A"), else a verb and the target.
+  const VERB = { Read: 'Reading', Write: 'Writing', Edit: 'Editing', MultiEdit: 'Editing', Grep: 'Searching', Glob: 'Looking for files',
+    Skill: 'Using skill', WebFetch: 'Reading a web page', WebSearch: 'Searching the web', Bash: 'Running', ToolSearch: 'Loading tools' };
+  const DESCRIBED = /^[A-Z][a-z]/;
+  const DESK = { 'show result': 'Writing up the result', 'ask user': 'Preparing questions for you', 'canvas build': 'Building on the canvas',
+    'canvas pull': 'Reading your canvas edits', 'canvas selection': 'Looking at your selection', 'libraries': 'Checking the libraries',
+    'library sync': 'Syncing a library', 'propose ds change': 'Proposing a design system change', 'prototype outline': 'Outlining the prototype',
+    'prototype propose': 'Proposing prototype links' };
+  function doing(tool, summary) {
+    summary = String(summary || '').trim();
+    if (tool === 'desk') return DESK[summary] || summary;
+    if (tool === 'Bash' && DESCRIBED.test(summary)) return summary;     // its description (a raw command starts lower case)
+    const v = VERB[tool] || (DESCRIBED.test(summary) ? '' : tool);
+    return `${v} ${summary}`.trim();
+  }
+  // Reasoning shows only its titles (the bold headings flynn writes as it thinks), never the trace itself.
+  function thinkTitle(text) {
+    const all = [...text.matchAll(/\*\*([^*\n]{3,90})\*\*/g)];
+    return all.length ? all[all.length - 1][1].trim() : '';
+  }
+  function setMode(m) { mode = m; }          // the canvas is the only place; kept for old 'mode' events
+
+  function render(ev) {
+    switch (ev.t) {
+      case 'user': {
+        flynnMsg = null;
+        const m = newMsg('you');
+        // "Allowed: Bash(...)" (older conversations kept only the text): a short line, the commands collapsed
+        const rules = ev.rules || (/^Allowed: /.test(ev.text) ? [ev.text.replace(/^Allowed: /, '')] : null);
+        if (rules) {
+          m.appendChild(el(`<div class="body">Allowed ${rules.length === 1 ? 'this command' : rules.length + ' commands'}. Continue.</div>`));
+          m.appendChild(ruleList(rules));
+          lastUser = m; setRunning(true); scroll(); break;
+        }
+        const shown = ev.text.startsWith('ALIGNED') ? 'Answers sent:\n' + ev.text.replace(/^ALIGNED\n/, '') : ev.text;
+        m.appendChild(el(`<div class="body" dir="auto" style="white-space:pre-wrap">${esc(shown)}</div>`));
+        if ((ev.files || []).length) m.appendChild(el(`<div class="ufiles">${ev.files.map((f) => `<span>📎 ${esc(f)}</span>`).join('')}</div>`));
+        if (ev.at && !running) { const t = Date.parse(ev.at); if (t) act.startAt = t; }
+        turnOpen = true; lastUser = m; setRunning(true, 'flynn is working'); scroll(); break;
+      }
+      case 'context': {
+        if (!lastUser) break;
+        const what = ev.selected ? `${ev.selected} selected: ${(ev.names || []).map(esc).join(', ')}${ev.selected > (ev.names || []).length ? '…' : ''}` : 'nothing selected';
+        lastUser.appendChild(el(`<div class="ctx">${icon('board')}<span>${esc(ev.page || '')} · ${what}</span></div>`));
+        break;
+      }
+      case 'delta':
+        flynnBlock();
+        if (!flynnBody) { flynnBody = append(el('<div class="body" dir="auto"></div>')); flynnText = ''; }
+        flynnText += ev.text;
+        flynnBody.innerHTML = md(flynnText.replace(BLOCK, '')); scroll();
+        if (running) activity('writing the answer', 'flynn is working'); break;
+      case 'assistant_end': flynnBody = null; flynnText = ''; act.think = ''; if (note) { note.remove(); note = null; } break;
+      case 'note': {
+        act.think += ev.text;
+        const title = thinkTitle(act.think);
+        activity(title, 'flynn is thinking'); break;
+      }
+      case 'activity': activity(ev.tool ? doing(ev.tool, ev.text) : ev.text, FRIENDLY[ev.agent] || `Working with ${ev.agent}`); break;
+      case 'tool': {
+        if (!steps || flynnBody) {
+          steps = append(el(`<details class="steps"><summary>${icon('arrow-right')}<span></span></summary><ol></ol></details>`));
+          flynnBody = null;
+        }
+        const ol = steps.querySelector('ol');
+        ol.appendChild(el(`<li title="${esc(ev.summary)}"><b>${esc(ev.name === 'Agent' ? 'Specialist' : ev.name)}</b>${esc(ev.summary || '')}</li>`));
+        const n = ol.children.length;
+        steps.querySelector('summary span').textContent = `${n} step${n > 1 ? 's' : ''}`;
+        if (ev.name === 'Agent' || ev.name === 'Task') {
+          const [who, ...what] = String(ev.summary || '').split(': ');
+          activity(what.join(': '), FRIENDLY[who] || `Working with ${who || 'a specialist'}`);
+        } else activity(doing(ev.name, ev.summary), 'flynn is working');
+        break;
+      }
+      case 'card': append(card(ev.card)); break;
+      case 'denied': append(deniedCard(ev.tools)); break;
+      case 'run': append(runRow(ev)); break;
+      case 'penpot': buildCard(ev); break;
+      case 'library': append(libraryPill(ev)); break;
+      case 'ds-change': append(changeCard(ev.change)); break;
+      case 'ds-change-result': append(changeResult(ev)); break;
+      case 'recording': { const p = recordingPill(ev); if (p) append(p); break; }
+      case 'system': setSystem(ev.system, true); break;
+      case 'info': append(infoCard(ev)); break;
+      case 'settings': append(settingsCard(ev)); break;
+      case 'prototype': append(protoCard(ev.plan)); break;
+      case 'skill': append(skillCard(ev.skill)); break;
+      case 'skill-result': {
+        const c = document.querySelector(`[data-skill="${CSS.escape(ev.id)}"]`); if (c) { const r = c.querySelector('.row'); if (r) r.remove(); }
+        append(ev.state === 'installed' ? pill('success', `Skill <b>${esc(ev.name)}</b> is installed. flynn can use it from the next message.`) : pill('info', `Skill ${esc(ev.name)} rejected. Nothing was installed.`)); break;
+      }
+      case 'prototype-result': append(protoResult(ev)); break;
+      case 'mode': setMode(ev.mode); break;
+      case 'error': append(pill('error', esc(ev.text))); break;
+      case 'turn_end': turnOpen = false; if (!openBuild()) setRunning(false); if (note) { note.remove(); note = null; } flynnBody = null; break;
+    }
+  }
+
+  function pill(level, html, actions = '') {
+    const busy = level === 'info' && /…\s*$/.test(html.replace(/<[^>]+>/g, ''));
+    return el(`<div class="sc lvl-${level}${busy ? ' busy' : ''}" role="${level === 'error' ? 'alert' : 'status'}"><span class="dot"></span>
+      <div class="sc-body">${html}${actions ? `<div class="row">${actions}</div>` : ''}</div></div>`);
+  }
+
+  function runRow(ev) {
+    const r = el(`<div class="runrow">${icon('board')}<span class="name" title="${esc(ev.run)}">${esc(ev.run)}</span>
+      ${btn('Build here', 'secondary', `data-push="${esc(ev.run)}"`)}</div>`);
+    r.querySelector('[data-push]').onclick = (e) => post('/push', { file: FILE, run: e.currentTarget.dataset.push });
+    return r;
+  }
+
+  // ---------- design system changes ----------
+  const sysLabel = (id) => (systems.find((x) => x.system === id) || {}).label || id;
+  function changeItem(it) {
+    const sw = (c) => c && /^#|^rgb/.test(c) ? `<i class="sw" style="background:${esc(c)}"></i>` : '';
+    let v;
+    if (it.kind === 'token') v = it.removed ? `<del>${esc(it.before)}</del> removed` : it.new ? `${sw(it.after)}${esc(it.after)} <small>(new)</small>`
+      : `${sw(it.before)}<del>${esc(it.before)}</del> → ${sw(it.after)}${esc(it.after)}`;
+    else if (it.kind === 'component') v = it.removed ? 'removed' : `${it.new ? 'new · ' : ''}${esc((it.fields || []).join(', '))}${it.after ? `<br><small>${esc(String(it.after).slice(0, 140))}</small>` : ''}`;
+    else if (it.kind === 'sample') v = `new sample: ${esc(it.after)}`;
+    else v = `rebuild from recording ${esc(it.name)}`;
+    return `<li><span class="k">${esc(it.kind === 'recording' ? 'library' : it.kind)}</span><span class="v"><b>${esc(it.kind === 'recording' ? '' : it.name)}</b> ${v}</span></li>`;
+  }
+  function changeCard(c) {
+    const card = el(`<div class="card" data-change="${esc(c.id)}"><div class="card-title" data-sys="${esc(c.system)}">Design system change · ${esc(sysLabel(c.system))}</div>
+      <div class="q-text" dir="auto">${esc(c.title)}</div>${c.why ? `<div class="q-why" dir="auto">${esc(c.why)}</div>` : ''}
+      <ul class="chg-items">${c.items.slice(0, 24).map(changeItem).join('')}${c.items.length > 24 ? `<li><span class="k">…</span><span class="v">${c.items.length - 24} more</span></li>` : ''}</ul>
+      <div class="row">${btn('Approve', 'primary', 'data-a="ok"')}${btn('Reject', 'secondary', 'data-a="no"')}</div></div>`);
+    card.querySelector('[data-a=ok]').onclick = () => { card.querySelectorAll('button').forEach((b) => b.disabled = true); post('/ds/approve', { file: FILE, id: c.id }); };
+    card.querySelector('[data-a=no]').onclick = () => { card.querySelectorAll('button').forEach((b) => b.disabled = true); post('/ds/reject', { file: FILE, id: c.id }); };
+    return card;
+  }
+  function changeResult(ev) {
+    const card = document.querySelector(`[data-change="${CSS.escape(ev.id)}"]`);
+    if (card && ev.state !== 'applying') card.querySelectorAll('button').forEach((b) => b.remove());
+    if (ev.state === 'applying') return pill('info', 'Applying the change and updating the library…');
+    if (ev.state === 'rejected') return pill('info', `Rejected: ${esc(ev.title || '')}. Nothing changed.`);
+    if (ev.state === 'error') return pill('error', `The change could not be applied: ${esc(ev.text)}`);
+    return pill('success', `Approved and applied: ${esc(ev.title || '')}.` + (ev.library ? ` <b>${esc(ev.library)}</b> is up to date.` : ''));
+  }
+  function recordingPill(ev) {
+    switch (ev.state) {
+      case 'started': return pill('info', `Recording <b>${esc(ev.system)}</b> (${ev.how === 'crawl' ? 'flynn explores' : 'you browse'})…`);
+      case 'mining': return pill('info', `Recorded ${ev.pages} page${ev.pages === 1 ? '' : 's'}. Finding components and tokens…`);
+      case 'building': return pill('info', `Found ${ev.components} components and ${ev.tokens} tokens. Building the screens…`);
+      case 'done': return pill('success', `Built on page <b>${esc(ev.pageName)}</b>: ${ev.pages} screen${ev.pages === 1 ? '' : 's'} as real elements.`);
+      case 'library-proposed': return pill('info', 'The library update is waiting for your approval below.');
+      case 'error': return pill('error', `Recording failed: ${esc(ev.text)}`);
+      default: return null;
+    }
+  }
+
+  // ---------- design system picker ----------
+  let systems = [], current = '';
+  const sysBtn = $('sys'), sysMenu = $('sysmenu');
+  function setSystem(id, fromServer) {
+    current = id || '';
+    $('syslabel').textContent = current ? sysLabel(current) : 'No design system';
+    sysBtn.classList.toggle('on', !!current);
+    if (fromServer && flynnMsg === null) {}            // the chip itself is the record; no chat noise
+  }
+  function openMenu() {
+    const opt = (id, label, sub) => `<button class="sysopt" role="option" data-id="${esc(id)}" aria-selected="${id === current}">
+      <span class="tick">${id === current ? '✓' : ''}</span><span class="grow">${esc(label)}${sub ? `<small>${esc(sub)}</small>` : ''}</span></button>`;
+    sysMenu.innerHTML = opt('', 'No design system', 'flynn picks the right approach for each request') + '<hr>' +
+      (systems.length ? systems.map((x) => opt(x.system, x.label, [x.components ? `${x.components} components` : '', x.synced ? `synced ${x.synced}` : ''].filter(Boolean).join(' · '))).join('')
+        : '<div class="sysopt" style="cursor:default"><span class="tick"></span><span class="grow"><small>No libraries yet. Record a product or sync a system to make one.</small></span></div>');
+    sysMenu.hidden = false; sysBtn.setAttribute('aria-expanded', 'true');
+    sysMenu.querySelectorAll('.sysopt').forEach((b) => b.onclick = async () => {
+      closeMenu(); setSystem(b.dataset.id); await post('/system', { file: FILE, system: b.dataset.id });
+    });
+    (sysMenu.querySelector('[aria-selected=true]') || sysMenu.querySelector('.sysopt')).focus();
+  }
+  function closeMenu() { sysMenu.hidden = true; sysBtn.setAttribute('aria-expanded', 'false'); }
+  sysBtn.onclick = (e) => { e.stopPropagation(); sysMenu.hidden ? openMenu() : closeMenu(); };
+  document.addEventListener('click', (e) => { if (!sysMenu.hidden && !sysMenu.contains(e.target)) closeMenu(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sysMenu.hidden) { closeMenu(); sysBtn.focus(); } });
+  fetch(`${API}/systems?file=${encodeURIComponent(FILE)}`).then((r) => r.json()).then((j) => {
+    systems = j.systems || []; setSystem(j.system);
+    document.querySelectorAll('.card-title[data-sys]').forEach((t) => { t.textContent = 'Design system change · ' + sysLabel(t.dataset.sys); });
+  }).catch(() => {});
+
+  // ---------- selection box ----------
+  let selKey = '', excluded = '';
+  const selBox = $('selbox');
+  const TYPE = { rect: 'rectangle', frame: 'board', bool: 'boolean' };
+  function panelVisible() {
+    try { return parent.document.getElementById('flynn-frame').style.display !== 'none' && !parent.document.hidden; } catch (e) { return true; }
+  }
+  function showSelection(j) {
+    const key = (j && j.key) || '';
+    if (key !== selKey) { selKey = key; if (key !== excluded) excluded = ''; }
+    if (!j || !j.count || key === excluded) { selBox.hidden = true; return; }
+    $('seltitle').textContent = `${j.count} selected${j.page ? ' · ' + j.page : ''} · sent with your message`;
+    $('selnames').innerHTML = j.items.map((i) => `${esc(i.name)} <span>${esc(i.component ? 'instance of ' + i.component : TYPE[i.type] || i.type)}</span>`).join(', ') + (j.count > j.items.length ? '…' : '');
+    const t = $('selthumb'); if (j.preview) { t.src = j.preview; t.hidden = false; } else t.hidden = true;
+    selBox.hidden = false;
+  }
+  // Only when the live connection is unavailable: ask for the selection every second (the server pushes it otherwise).
+  let selPolling = false;
+  async function pollSelection() {
+    if (live.open) { selPolling = false; return; }
+    const vis = panelVisible();
+    if (vis) {
+      try { showSelection(await (await fetch(`${API}/selection?file=${encodeURIComponent(FILE)}`)).json()); }
+      catch (e) { selBox.hidden = true; }
+    }
+    setTimeout(pollSelection, vis ? 1200 : 3000);
+  }
+  function startSelectionPolling() { if (!selPolling) { selPolling = true; pollSelection(); } }
+  $('selx').onclick = () => { excluded = selKey; selBox.hidden = true; input.focus(); };
+
+  function libraryPill(ev) {
+    if (ev.state === 'syncing') return pill('info', `Syncing ${ev.systems.length} librar${ev.systems.length === 1 ? 'y' : 'ies'}…`);
+    if (ev.state === 'error') return pill('error', `Could not sync ${esc(ev.name)}: ${esc(ev.text)}`);
+    return pill('success', `<b>${esc(ev.name)}</b> is up to date: ${ev.colors || 0} colours` +
+      (ev.skipped ? ', components unchanged.' : `, ${ev.components || 0} components.`));
+  }
+  const pageLinks = {};
+  // One card per build (older builds have no id: the run name stands in). It shows the current step, a bar, the time
+  // so far and a rough time left, then becomes the result in the same place, so nothing keeps spinning after an error.
+  const builds = {};
+  function buildTick(c) {
+    if (!c.isConnected && c._timer) { clearInterval(c._timer); return; }
+    const sec = (Date.now() - c._start) / 1000, pct = c._pct || 0;
+    let left = '';
+    if (pct >= 8 && pct < 100) { const rest = sec * (100 - pct) / pct; left = rest < 15 ? ' · almost done' : ` · about ${fmt(rest)} left`; }
+    const since = (Date.now() - (c._at || c._start)) / 1000;
+    c.querySelector('.bld-time').textContent = `${fmt(sec)} so far${left}` + (since > 30 ? ` · this step has taken ${fmt(since)}` : '');
+  }
+  function buildCard(ev) {
+    const key = ev.build || 'run:' + ev.run;
+    let c = builds[key];
+    if (ev.state === 'building' || ev.state === 'progress') {
+      if (c && !c.classList.contains('bld')) return null;           // already finished
+      if (!c) {
+        c = builds[key] = el(`<div class="sc lvl-info busy bld" role="status"><span class="dot"></span><div class="sc-body">
+          <div>Building <b>${esc(ev.run)}</b> on this page</div><div class="bld-stage">Starting…</div>
+          <div class="bld-bar" role="progressbar" aria-label="Build progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+          <div class="bld-time"></div></div></div>`);
+        c._start = ev.ts ? ev.ts * 1000 : Date.now(); c._pct = 0;
+        c._timer = setInterval(() => buildTick(c), 1000);
+        append(c);
+      }
+      if (ev.state === 'progress') {
+        if (c.querySelector('.bld-stage').textContent !== ev.text) c._at = ev.ts ? ev.ts * 1000 : Date.now();
+        c.querySelector('.bld-stage').textContent = ev.text;
+        c._pct = ev.pct || 0;
+        c.querySelector('.bld-bar i').style.width = `${c._pct}%`;
+        c.querySelector('.bld-bar').setAttribute('aria-valuenow', String(Math.round(c._pct)));
+      }
+      buildTick(c);
+      activity(c.querySelector('.bld-stage').textContent, 'Building on the canvas');
+      return null;
+    }
+    const fin = penpotPill(ev);
+    if (c && c.classList.contains('bld')) { clearInterval(c._timer); c.replaceWith(fin); } else append(fin);
+    builds[key] = fin;
+    // A run that built after failing: its earlier error cards are out of date, so they go.
+    if (ev.state === 'error') (failedBuilds[ev.run] = failedBuilds[ev.run] || []).push(fin);
+    else { (failedBuilds[ev.run] || []).forEach((p) => p.remove()); delete failedBuilds[ev.run]; }
+    if (!turnOpen && !openBuild()) setRunning(false);
+    else if (running) activity('', 'flynn is working');
+    return null;
+  }
+  const failedBuilds = {};                                          // run -> its error cards, until it builds
+  const openBuild = () => Object.values(builds).some((c) => c.classList.contains('bld') && c.isConnected);
+  function stopOpenBuilds() {                                       // the server says nothing runs: no card may spin on
+    Object.entries(builds).forEach(([k, c]) => {
+      if (!c.classList.contains('bld') || !c.isConnected) return;
+      clearInterval(c._timer);
+      const run = k.replace(/^run:/, '').replace(/@\d+$/, '');
+      const fin = penpotPill({ state: 'error', run, text: 'The build stopped without reporting back (the server may have restarted).' });
+      c.replaceWith(fin); builds[k] = fin;
+    });
+    if (!turnOpen) setRunning(false);
+  }
+  function penpotPill(ev) {
+    if (ev.state === 'error') {
+      const p = pill('error', `Could not build <b>${esc(ev.run)}</b> on the canvas: ${esc(ev.text)}`, btn('Try again', 'secondary', 'data-retry'));
+      p.querySelector('[data-retry]').onclick = (e) => { e.currentTarget.disabled = true; post('/push', { file: FILE, run: ev.run }); };
+      return p;
+    }
+    pageLinks[ev.run] = ev.link;
+    const kept = (ev.kept || []).length ? `<br>Your edited board${ev.kept.length > 1 ? 's were' : ' was'} kept: ${esc(ev.kept.join(', '))}.` : '';
+    const p = pill('success', `Built on page <b>${esc(ev.page)}</b>${ev.secs ? ` in ${fmt(ev.secs)}` : ''}: ${esc((ev.boards || []).filter((b) => !(ev.kept || []).includes(b)).join(', '))}.${kept}`,
+      btn('Show page', 'secondary', `data-page="${esc(ev.link || '')}"`));
+    p.querySelector('[data-page]').onclick = () => goToPage(ev);
+    return p;
+  }
+  async function goToPage(ev) {
+    try {
+      const m = /page-id=([0-9a-f-]+)/.exec(ev.link || '');
+      if (m) { const u = new URL(parent.location.href); const h = new URLSearchParams(u.hash.split('?')[1] || ''); h.set('page-id', m[1]); parent.location.hash = '#/workspace?' + h.toString(); }
+    } catch (e) { if (ev.link) window.open(ev.link, '_blank'); }
+  }
+
+  function card(c) {
+    const d = el('<div class="card" dir="auto"></div>');
+    const add = (html) => { const n = el(html); d.appendChild(n); return n; };
+    if (c.kind === 'needs_alignment') {
+      add(`<div class="card-title">${esc(c.stage === 'contract' ? 'Design contract' : c.stage === 'options' ? 'Options' : c.stage || 'Questions')}</div>`);
+      if (c.brief) add(`<div class="body" style="grid-column:auto">${md(c.brief)}</div>`);
+      // Each question: its options as choices (radio, or checkboxes when flynn marks it multi), flynn's
+      // recommendation preselected, and a free-text field for anything else.
+      const readers = [];
+      (c.questions || []).forEach((q) => {
+        const box = add(`<div class="q"><div class="q-text" dir="auto">${q.n}. ${esc(q.q)}${q.multi ? ' <span class="q-why">(choose any)</span>' : ''}</div>${q.because ? `<div class="q-why" dir="auto">${esc(q.because)}</div>` : ''}</div>`);
+        const rec = q.multi ? String(q.recommended || '').split(/\s*[;,]\s*/).filter(Boolean) : [q.recommended].filter(Boolean);
+        const opts = (q.options || []).slice();
+        rec.forEach((r) => { if (!opts.some((o) => o.toLowerCase() === r.toLowerCase())) opts.unshift(r); });
+        const isRec = (o) => rec.some((r) => r.toLowerCase() === o.toLowerCase());
+        const choices = opts.map((o) => {
+          const ch = el(`<button class="choice${isRec(o) ? ' on' : ''}${q.multi ? ' multi' : ''}" type="button"><span class="dot"></span><span dir="auto">${esc(o)}${isRec(o) ? "<small>flynn's recommendation</small>" : ''}</span></button>`);
+          ch.dataset.value = o;
+          box.appendChild(ch);
+          return ch;
+        });
+        const other = el(`<textarea class="field" rows="1" dir="auto" placeholder="${opts.length ? 'Something else…' : 'Your answer…'}"></textarea>`);
+        box.appendChild(other);
+        choices.forEach((ch) => ch.onclick = () => {
+          if (q.multi) { ch.classList.toggle('on'); }
+          else { choices.forEach((x) => x.classList.toggle('on', x === ch)); other.value = ''; }
+        });
+        other.oninput = () => { if (!q.multi && other.value.trim()) choices.forEach((x) => x.classList.remove('on')); };
+        readers.push(() => {
+          const picked = choices.filter((x) => x.classList.contains('on')).map((x) => x.dataset.value);
+          if (other.value.trim()) picked.push(other.value.trim());
+          return { n: q.n, answer: picked.join('; ') };
+        });
+      });
+      if ((c.show_user || []).length) add(`<div class="files">${c.show_user.map(esc).join('<br>')}</div>`);
+      const noteBox = add(`<textarea class="field" rows="2" dir="auto" placeholder="Anything else for flynn (optional)…"></textarea>`);
+      const go = add(btn(c.stage === 'contract' ? 'Approve contract' : 'Send answers', 'primary full'));
+      go.onclick = async () => {
+        const answers = readers.map((r) => r()).filter((a) => a.answer);
+        if (!answers.length && !noteBox.value.trim()) return;
+        if (!answers.length) answers.push({ n: 1, answer: noteBox.value.trim() });
+        go.disabled = true;
+        await post('/answer', { file: FILE, answers, note: noteBox.value });
+      };
+    } else if (c.kind === 'result') {
+      add(`<div class="card-title">${esc(c.status && c.status !== 'done' ? 'Result · ' + c.status : 'Result')}</div>`);
+      const main = c.answer || c.summary;
+      if (main) add(`<div class="body" style="grid-column:auto">${md(main)}</div>`);
+      if ((c.deliverables || []).length) add(`<div class="files">${c.deliverables.map(esc).join('<br>')}</div>`);
+      if (c.audit) add(`<div class="files">Audit: ${esc(c.audit)}</div>`);
+      if ((c.caveats || []).length) add(`<div class="body" style="grid-column:auto">${md(c.caveats.map((x) => '- ' + x).join('\n'))}</div>`);
+    } else if (c.kind === 'blocked') {
+      return pill('error', `<b>Blocked.</b> ${esc(c.reason || '')}${c.needed ? '<br>Needed: ' + esc(c.needed) : ''}`);
+    }
+    return d;
+  }
+
+  // A permission rule such as Bash(cd "…"; python3 …) as one collapsed line: the tool name and the start of the
+  // command; clicking shows the whole command in a code font.
+  function ruleList(rules) {
+    const box = el('<div class="rules"></div>');
+    for (const r of rules) {
+      const m = /^([A-Za-z_][\w:.-]*)\(([\s\S]*)\)$/.exec(String(r).trim());
+      const tool = m ? m[1].replace(/^mcp__(\w+)__/, '$1 · ') : 'Rule', arg = m ? m[2] : String(r);
+      const line = arg.replace(/\s+/g, ' ').trim();
+      box.appendChild(el(`<details class="rule"><summary><b>${esc(tool)}</b><span title="${esc(line.slice(0, 300))}">${esc(line || '(any)')}</span>${icon('arrow-right')}</summary><pre>${esc(arg)}</pre></details>`));
+    }
+    return box;
+  }
+
+  function deniedCard(tools) {
+    const p = pill('warning', `flynn needs your permission to continue:`,
+      btn('Allow and continue', 'primary', 'data-yes') + btn("Don't allow", 'ghost', 'data-no'));
+    p.querySelector('.sc-body').insertBefore(ruleList(tools.map((t) => t.rule)), p.querySelector('.sc-body .row'));
+    p.querySelector('[data-yes]').onclick = async (e) => { e.currentTarget.disabled = true; await post('/allow', { file: FILE, rules: tools.map((t) => t.rule) }); };
+    p.querySelector('[data-no]').onclick = () => p.remove();
+    return p;
+  }
+
+  // ---------- info, settings and prototype cards ----------
+  function infoCard(ev) {
+    return el(`<div class="card"><div class="card-title">${esc(ev.title)}</div><dl class="kv">${(ev.rows || []).map(([k, v]) => `<dt>${esc(k)}</dt><dd dir="auto">${esc(v)}</dd>`).join('')}</dl></div>`);
+  }
+  function agentSetup() {
+    // The team server: flynn's AI runs on each person's computer, through the flynn agent. Show whether it is
+    // connected, and the install command (the same one as /flynn/agent/connect).
+    const c = el(`<div class="card agent-setup"><div class="card-title">Settings · flynn on your computer</div>
+      <div class="q-why">flynn's AI runs on your own computer with your own Claude account. Install the flynn agent once:
+        paste the command into Terminal on your Mac and press Return. It keeps itself up to date.</div>
+      <div class="agent-st" data-st><span class="dot"></span><span>Checking your computer…</span></div>
+      <pre class="install-cmd" data-cmd hidden></pre>
+      <div class="row">${btn('Show install command', 'primary', 'data-a="make"')}${btn('Copy', 'secondary', 'data-a="copy" hidden')}</div>
+      <div class="q-why" data-note hidden>The command holds a key for your account only. Creating a new one turns off the old one.</div></div>`);
+    const st = c.querySelector('[data-st]'), cmd = c.querySelector('[data-cmd]');
+    const make = c.querySelector('[data-a=make]'), copy = c.querySelector('[data-a=copy]');
+    const status = async () => {
+      try {
+        const j = await (await fetch('/flynn/agent/status', { credentials: 'same-origin' })).json();
+        st.classList.toggle('on', !!j.connected);
+        st.lastElementChild.textContent = j.connected ? `Connected${j.host ? ' from ' + j.host : ''}${j.transport === 'websocket' ? ' · live' : ''}`
+          : j.has_token ? 'Installed, but not connected right now. On that computer, run: flynn-agent start' : 'Not installed on any computer yet';
+        if (!j.has_token && make.textContent !== 'Create a new command') make.textContent = 'Show install command';
+      } catch (e) { st.lastElementChild.textContent = 'Could not check your computer'; }
+    };
+    make.onclick = async () => {
+      make.disabled = true;
+      try {
+        const j = await (await fetch('/flynn/agent/token', { method: 'POST', credentials: 'same-origin' })).json();
+        if (j.error) { st.lastElementChild.textContent = j.error; return; }
+        cmd.textContent = j.command; cmd.hidden = false; copy.hidden = false;
+        c.querySelector('[data-note]').hidden = false;
+        make.textContent = 'Create a new command'; make.className = make.className.replace('-primary', '-secondary');
+        copy.className = copy.className.replace('-secondary', '-primary');
+      } finally { make.disabled = false; }
+    };
+    copy.onclick = async () => {
+      try { await navigator.clipboard.writeText(cmd.textContent); copy.textContent = 'Copied'; }
+      catch (e) { const r = document.createRange(); r.selectNodeContents(cmd); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); copy.textContent = 'Press ⌘C'; }
+      setTimeout(() => { copy.textContent = 'Copy'; }, 2000);
+    };
+    status();
+    const t = setInterval(() => { if (!c.isConnected) clearInterval(t); else status(); }, 5000);
+    return c;
+  }
+  function settingsCard(ev) {
+    if (ev.engine === 'remote') return agentSetup();
+    const c = el(`<div class="card"><div class="card-title">Settings · AI that runs flynn</div>
+      <div class="q-why">One setting for the whole app. It takes effect from the next message.</div></div>`);
+    for (const o of ev.options || []) {
+      const b = el(`<button class="choice${o.id === ev.engine ? ' on' : ''}" type="button" ${o.available ? '' : 'disabled'}><span class="dot"></span>
+        <span>${esc(o.label)}<small>${o.id === 'local' ? (ev.sdk ? 'Your Claude account, through the Agent SDK' : 'Agent SDK not installed: runs through the CLI for now')
+          : o.id === 'cli' ? 'Your Claude account, through the claude command' : 'Not available yet'}</small></span></button>`);
+      if (o.available) b.onclick = async () => { c.querySelectorAll('.choice').forEach((x) => x.classList.toggle('on', x === b));
+        await fetch(`${API}/settings`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ engine: o.id }) }); };
+      c.appendChild(b);
+    }
+    return c;
+  }
+  function protoCard(p) {
+    const c = el(`<div class="card" data-proto="${esc(p.id)}"><div class="card-title">Prototype · ${esc(p.page)}</div>
+      ${p.summary ? `<div class="q-text" dir="auto">${esc(p.summary)}</div>` : ''}
+      ${p.flow ? `<div class="q-why">Flow <b>${esc(p.flow)}</b>${p.start ? `, starting on ${esc(p.start)}` : ''}</div>` : ''}
+      <ul class="proto-links">${p.links.slice(0, 30).map((l) => `<li dir="auto">${esc(l)}</li>`).join('')}${p.links.length > 30 ? `<li>${p.links.length - 30} more</li>` : ''}</ul>
+      <div class="row">${btn('Apply links', 'primary', 'data-a="ok"')}${btn('Reject', 'secondary', 'data-a="no"')}</div></div>`);
+    if (p.status !== 'pending') c.querySelector('.row').remove();
+    else {
+      c.querySelector('[data-a=ok]').onclick = () => { c.querySelectorAll('button').forEach((b) => b.disabled = true); post('/prototype/approve', { file: FILE, id: p.id }); };
+      c.querySelector('[data-a=no]').onclick = () => { c.querySelectorAll('button').forEach((b) => b.disabled = true); post('/prototype/reject', { file: FILE, id: p.id }); };
+    }
+    return c;
+  }
+  function skillCard(k) {
+    const c = el(`<div class="card" data-skill="${esc(k.id)}"><div class="card-title">${k.update ? 'Skill update' : 'New skill'} · ${esc(k.name)}</div>
+      <div class="q-text" dir="auto">${esc(k.description)}</div>${k.why ? `<div class="q-why" dir="auto">${esc(k.why)}</div>` : ''}
+      <pre class="skill-pre" dir="auto">${esc(k.preview)}</pre>${(k.files || []).length ? `<div class="files">Also: ${k.files.map(esc).join(', ')}</div>` : ''}
+      <div class="row">${btn('Install skill', 'primary', 'data-a="ok"')}${btn('Reject', 'secondary', 'data-a="no"')}</div></div>`);
+    if (k.status !== 'pending') c.querySelector('.row').remove();
+    else {
+      c.querySelector('[data-a=ok]').onclick = () => { c.querySelectorAll('button').forEach((b) => b.disabled = true); post('/skill/approve', { file: FILE, id: k.id }); };
+      c.querySelector('[data-a=no]').onclick = () => { c.querySelectorAll('button').forEach((b) => b.disabled = true); post('/skill/reject', { file: FILE, id: k.id }); };
+    }
+    return c;
+  }
+  function protoResult(ev) {
+    const c = document.querySelector(`[data-proto="${CSS.escape(ev.id)}"]`);
+    if (c && ev.state !== 'applying') { const r = c.querySelector('.row'); if (r) r.remove(); }
+    if (ev.state === 'applying') return pill('info', 'Linking the screens…');
+    if (ev.state === 'rejected') return pill('info', 'Prototype rejected. Nothing changed.');
+    if (ev.state === 'error') return pill('error', `The links could not be applied: ${esc(ev.text)}`);
+    return pill('success', `Linked ${ev.applied} hotspot${ev.applied === 1 ? '' : 's'}${ev.flow ? ` in flow <b>${esc(ev.flow)}</b>` : ''}${ev.skipped ? ` (${ev.skipped} skipped: the shape or board is gone)` : ''}. Press Play ▷ at the top right to click through.`);
+  }
+
+  // ---------- slash commands ----------
+  let commands = [], cmdSel = 0, cmdList = [];
+  const cmdMenu = $('cmdmenu');
+  fetch(`${API}/commands?file=${encodeURIComponent(FILE)}`).then((r) => r.json()).then((j) => { commands = j.commands || []; }).catch(() => {});
+  function drawCmds() {
+    const v = input.value;
+    const m = /^\/(\S*)$/.exec(v);
+    if (!m || !commands.length) { cmdMenu.hidden = true; return; }
+    const q = m[1].toLowerCase();
+    cmdList = !q ? commands : [...commands.filter((c) => c.name.startsWith(q)), ...commands.filter((c) => !c.name.startsWith(q) && c.label.toLowerCase().includes(q))];
+    if (cmdSel >= cmdList.length) cmdSel = 0;
+    let g = '', html = '';
+    cmdList.forEach((c, i) => {
+      if (!q && c.group !== g) { g = c.group; html += `<div class="cmdgroup">${esc(g)}</div>`; }
+      html += `<button class="cmd${i === cmdSel ? ' on' : ''}" type="button" role="option" data-i="${i}"><b>/${esc(c.name)}</b><span>${esc(c.label)}${c.arg ? ` <small style="display:inline">${esc(c.arg)}</small>` : ''}</span><small>${esc(c.hint)}</small></button>`;
+    });
+    cmdMenu.innerHTML = html || '<div class="cmdempty">No command matches. Type a message instead, or Esc.</div>';
+    cmdMenu.hidden = false;
+    const on = cmdMenu.querySelector('.cmd.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+    cmdMenu.querySelectorAll('.cmd').forEach((b) => b.onmousedown = (e) => { e.preventDefault(); pickCmd(cmdList[+b.dataset.i]); });
+  }
+  function pickCmd(c) {
+    cmdMenu.hidden = true;
+    if (c.arg && c.kind !== 'ui' || c.name === 'use' || c.name === 'figma') { input.value = `/${c.name} `; input.focus(); sendBtn.disabled = false; return; }
+    input.value = ''; clearDraft(); runCmd(c.name, '');
+  }
+  function libMatch(arg) {
+    const a = arg.toLowerCase().replace(/^@/, '');
+    return systems.find((x) => x.system.toLowerCase() === a || x.label.toLowerCase() === a)
+      || systems.find((x) => x.label.toLowerCase().includes(a) || x.system.toLowerCase().includes(a));
+  }
+  async function runCmd(name, arg) {
+    const c = commands.find((x) => x.name === name);
+    if (!c) { append(pill('error', `There is no /${esc(name)} command. Type / to see them.`)); return; }
+    const P = parent;
+    switch (name) {
+      case 'record': return P.flynnOpenRecorder ? P.flynnOpenRecorder() : append(pill('error', 'The recorder is not loaded in this tab. Reload flynn desk.'));
+      case 'figma':
+        if (arg) { input.value = ''; clearDraft(); return post('/figma/import', { file: FILE, url: arg }); }
+        return P.flynnOpenFigma ? P.flynnOpenFigma() : null;
+      case 'export': return P.flynnOpenExport ? P.flynnOpenExport() : null;
+      case 'history': return openHist();
+      case 'attach': return $('fileinput').click();
+      case 'use': {
+        if (!arg) return openMenu();
+        if (/^(none|off)$/i.test(arg)) { setSystem(''); return post('/system', { file: FILE, system: '' }); }
+        const s = libMatch(arg);
+        if (!s) return append(pill('error', `No library called ${esc(arg)}. Libraries: ${esc(systems.map((x) => x.label).join(', ') || 'none yet')}.`));
+        setSystem(s.system); await post('/system', { file: FILE, system: s.system });
+        return append(pill('success', `flynn designs from <b>${esc(s.label)}</b> in this conversation.`));
+      }
+      case 'help': return append(infoCard({ title: 'Commands', rows: commands.map((x) => ['/' + x.name + (x.arg ? ' …' : ''), x.hint]) }));
+    }
+    const j = await post('/command', { file: FILE, name, arg });
+    if (j && j.reload) location.reload();
+  }
+  input.addEventListener('input', () => { cmdSel = 0; drawCmds(); });
+  input.addEventListener('keydown', (e) => {
+    if (cmdMenu.hidden) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation(); cmdSel = (cmdSel + (e.key === 'ArrowDown' ? 1 : -1) + cmdList.length) % Math.max(cmdList.length, 1); drawCmds(); }
+    else if ((e.key === 'Enter' || e.key === 'Tab') && cmdList[cmdSel]) { e.preventDefault(); e.stopImmediatePropagation(); pickCmd(cmdList[cmdSel]); }
+    else if (e.key === 'Escape') { e.preventDefault(); cmdMenu.hidden = true; }
+  });
+  input.addEventListener('blur', () => setTimeout(() => { cmdMenu.hidden = true; }, 120));
+  $('plusbtn').onclick = () => {
+    if (!cmdMenu.hidden) { cmdMenu.hidden = true; return; }
+    if (!input.value.startsWith('/')) input.value = '/';
+    input.focus(); cmdSel = 0; drawCmds();
+  };
+
+  // ---------- attachments ----------
+  let atts = [];
+  const attBox = $('atts');
+  function drawAtts() {
+    attBox.hidden = !atts.length;
+    attBox.innerHTML = atts.map((a, i) => `<span class="att${a.id ? '' : ' busy'}" title="${esc(a.name)}"><span>${esc(a.name)}</span><small>${a.size > 1048576 ? (a.size / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(a.size / 1024)) + ' KB'}</small>
+      <button type="button" data-i="${i}" aria-label="Remove ${esc(a.name)}">×</button></span>`).join('');
+    attBox.querySelectorAll('button').forEach((b) => b.onclick = () => { atts.splice(+b.dataset.i, 1); drawAtts(); });
+    sendBtn.disabled = running || (!input.value.trim() && !atts.some((a) => a.id));
+  }
+  async function addFiles(list) {
+    for (const f of [...list].slice(0, 10)) {
+      if (f.size > 25 * 1048576) { append(pill('error', `${esc(f.name)} is over 25 MB.`)); continue; }
+      const a = { name: f.name, size: f.size, id: null }; atts.push(a); drawAtts();
+      const data = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(f); });
+      const j = await post('/upload', { file: FILE, name: f.name, type: f.type, data });
+      if (j && j.id) { a.id = j.id; } else atts = atts.filter((x) => x !== a);
+      drawAtts();
+    }
+  }
+  $('attbtn').onclick = () => $('fileinput').click();
+  $('fileinput').onchange = (e) => { addFiles(e.target.files); e.target.value = ''; };
+  const box = $('box');
+  box.addEventListener('dragover', (e) => { if ([...e.dataTransfer.types].includes('Files')) { e.preventDefault(); box.classList.add('drop'); } });
+  box.addEventListener('dragleave', () => box.classList.remove('drop'));
+  box.addEventListener('drop', (e) => { box.classList.remove('drop'); if (e.dataTransfer.files.length) { e.preventDefault(); addFiles(e.dataTransfer.files); } });
+  input.addEventListener('paste', (e) => { const fs = [...(e.clipboardData || {}).files || []]; if (fs.length) { e.preventDefault(); addFiles(fs); } });
+
+  async function post(path, body) {
+    // Over the live connection when it is open (no new request per action); uploads and the fallback use HTTP.
+    if (live.open && path !== '/upload') {
+      const r = await liveCall('POST', '/api' + path, body);
+      if (r) {
+        if (r.status >= 400) append(pill('error', esc((r.body && r.body.error) || ('error ' + r.status))));
+        return r.body || {};
+      }
+    }
+    try {
+      const r = await fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) append(pill('error', esc(j.error || ('error ' + r.status))));
+      return j;
+    } catch (e) { append(pill('error', 'The flynn server is not running (adapters/penpot/panel/panel_server.py serve).')); }
+  }
+
+  async function send() {
+    const text = input.value.trim();
+    const ready = atts.filter((a) => a.id);
+    if ((!text && !ready.length) || running) return;
+    const m = /^\/([a-z-]+)(?:\s+([\s\S]*))?$/.exec(text);
+    if (m && commands.some((c) => c.name === m[1])) { input.value = ''; clearDraft(); cmdMenu.hidden = true; return runCmd(m[1], (m[2] || '').trim()); }
+    if (atts.some((a) => !a.id)) { status.textContent = 'Wait for the files to finish uploading.'; return; }
+    input.value = ''; clearDraft(); sendBtn.disabled = true;
+    const fname = fromHeader() || (/penpot \|/i.test(fileName()) ? '' : fileName());
+    await post('/send', { file: FILE, text, file_name: fname, team: TEAM, selection: !(selKey && excluded === selKey), attachments: ready.map((a) => a.id) });
+    atts = []; drawAtts();
+  }
+  sendBtn.onclick = send;
+  input.addEventListener('input', () => { sendBtn.disabled = running || (!input.value.trim() && !atts.some((a) => a.id)); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); } });
+  stopBtn.onclick = () => post('/stop', { file: FILE });
+  async function newConversation() {
+    if (running) { alert('flynn is still working. Stop it first, or wait for it to finish.'); return; }
+    await post('/reset', { file: FILE }); location.reload();
+  }
+  $('reset').onclick = newConversation;
+
+  // ---------- conversation history ----------
+  const hist = $('hist'), histList = $('histlist'), histQ = $('histq');
+  let convs = [];
+  const ago = (iso) => {
+    const d = new Date(iso), s = (Date.now() - d) / 1000;
+    if (s < 60) return 'just now'; if (s < 3600) return Math.round(s / 60) + ' min ago';
+    if (s < 86400) return Math.round(s / 3600) + ' h ago'; if (s < 172800) return 'yesterday';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
+  };
+  const group = (iso) => {
+    const d = new Date(iso), t = new Date(); t.setHours(0, 0, 0, 0);
+    const days = (t - new Date(d).setHours(0, 0, 0, 0)) / 86400000;
+    return days <= 0 ? 'Today' : days === 1 ? 'Yesterday' : days < 7 ? 'This week' : days < 31 ? 'This month' : 'Older';
+  };
+  function drawHist() {
+    const q = histQ.value.trim().toLowerCase();
+    const list = convs.filter((c) => !q || (c.title || '').toLowerCase().includes(q));
+    if (!list.length) { histList.innerHTML = `<div class="hist-empty">${q ? 'No conversation matches.' : 'No past conversations in this file yet. When you start a new one, this one is kept here.'}</div>`; return; }
+    let g = '', html = '';
+    for (const c of list) {
+      const gg = c.current ? 'Current' : group(c.updated);
+      if (gg !== g) { g = gg; html += `<div class="hist-group">${gg}</div>`; }
+      html += `<button class="hi${c.current ? ' cur' : ''}" type="button" data-id="${esc(c.id)}"><span class="ttl" dir="auto">${esc(c.title)}</span>
+        <span class="meta">${esc(ago(c.updated))} · ${c.messages} message${c.messages === 1 ? '' : 's'}</span>
+        ${c.current ? '' : `<span class="del main_ui_ds_buttons_icon_button__icon-button main_ui_ds_buttons_icon_button__icon-button-ghost" role="button" tabindex="0" data-del="${esc(c.id)}" title="Delete this conversation" aria-label="Delete">${icon('delete')}</span>`}</button>`;
+    }
+    histList.innerHTML = html;
+    histList.querySelectorAll('.hi').forEach((b) => b.onclick = async (e) => {
+      const del = e.target.closest('[data-del]');
+      if (del) {
+        e.stopPropagation();
+        if (!confirm('Delete this conversation? Its designs and runs are kept.')) return;
+        await post('/conversations/delete', { file: FILE, id: del.dataset.del });
+        convs = convs.filter((c) => c.id !== del.dataset.del); drawHist(); return;
+      }
+      if (b.dataset.id === 'current') { closeHist(); return; }
+      if (running) { alert('flynn is still working. Stop it first, or wait for it to finish.'); return; }
+      const j = await post('/conversations/open', { file: FILE, id: b.dataset.id });
+      if (j && j.ok) location.reload();
+    });
+  }
+  async function openHist() {
+    hist.hidden = false; histQ.value = ''; histList.innerHTML = '<div class="hist-empty">Loading…</div>';
+    try { convs = (await (await fetch(`${API}/conversations?file=${encodeURIComponent(FILE)}`)).json()).conversations || []; } catch (e) { convs = []; }
+    drawHist(); histQ.focus();
+  }
+  function closeHist() { hist.hidden = true; $('histbtn').focus(); }
+  $('histbtn').onclick = () => hist.hidden ? openHist() : closeHist();
+  $('histback').onclick = closeHist;
+  $('histnew').onclick = newConversation;
+  histQ.oninput = drawHist;
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !hist.hidden) closeHist(); });
+  fetch(`${API}/history?file=${encodeURIComponent(FILE)}`).then((r) => r.json()).then((h) => { if (h.file_name && !$('file').textContent) showName(h.file_name); }).catch(() => {});
+  // The server's ping (every 15 s of quiet): it is alive, and says whether flynn is still running. Two pings saying it
+  // is not, while the panel thinks it is, mean the turn ended out of sight (a restart): stop showing it as working.
+  function onPing(r) {
+    act.ping = Date.now();
+    if (r) { act.idle = 0; return; }
+    stopOpenBuilds();
+    if (running && ++act.idle >= 2) setRunning(false);
+  }
+  function onEvent(id, ev) {
+    if (id <= live.last) return;                       // already shown (a reconnect resumes after the last one)
+    live.last = id;
+    try { render(ev); } catch (e) {}
+  }
+  // Fallback: the old event stream, for networks that can't carry WebSockets.
+  function startEventStream() {
+    if (live.es) return;
+    const es = live.es = new EventSource(`${API}/events?file=${encodeURIComponent(FILE)}&since=${live.last + 1}`);
+    es.onmessage = (m) => { try { onEvent(Number(m.lastEventId), JSON.parse(m.data)); } catch (e) {} };
+    es.addEventListener('ping', (m) => { let r = true; try { r = JSON.parse(m.data).running; } catch (e) {} onPing(r); });
+    es.onerror = () => { if (!running) status.textContent = 'Reconnecting to flynn…'; };
+    es.onopen = () => { if (!running) status.textContent = ''; };
+    startSelectionPolling();
+  }
+  // The live connection: chat events, the heartbeat and the canvas selection come down it; the panel's actions go up.
+  function connectLive() {
+    let ws;
+    try {
+      ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${API}/ws?file=${encodeURIComponent(FILE)}&since=${live.last + 1}`);
+    } catch (e) { startEventStream(); return; }
+    let opened = false;
+    ws.onopen = () => {
+      opened = live.everOpen = true; live.open = true; live.ws = ws; live.tries = 0;
+      if (!running) status.textContent = '';
+      live.vis = panelVisible(); ws.send(JSON.stringify({ type: 'visible', on: live.vis }));
+    };
+    ws.onmessage = (m) => {
+      let j; try { j = JSON.parse(m.data); } catch (e) { return; }
+      if (j.type === 'event') onEvent(j.id, j.ev);
+      else if (j.type === 'ping') onPing(j.running);
+      else if (j.type === 'selection') showSelection(j.sel);
+      else if (j.type === 'reply') { const w = live.waits.get(j.id); if (w) { live.waits.delete(j.id); w(j); } }
+    };
+    ws.onclose = () => {
+      live.open = false; live.ws = null;
+      for (const w of live.waits.values()) w(null);   // unanswered actions retry over HTTP
+      live.waits.clear();
+      if (!running) status.textContent = 'Reconnecting to flynn…';
+      if (!opened && !live.everOpen && ++live.tries >= 2) { startEventStream(); return; }   // blocked: use the old stream
+      startSelectionPolling();
+      setTimeout(connectLive, Math.min(1000 * (live.tries + 1), 8000));
+      if (opened) live.tries = 0; else live.tries++;
+    };
+  }
+  function liveCall(method, path, body) {
+    return new Promise((resolve) => {
+      if (!live.open) { resolve(null); return; }
+      const id = ++live.n;
+      const timer = setTimeout(() => { if (live.waits.delete(id)) resolve(null); }, 60000);
+      live.waits.set(id, (r) => { clearTimeout(timer); resolve(r); });
+      try { live.ws.send(JSON.stringify({ type: 'call', id, method, path, body })); }
+      catch (e) { live.waits.delete(id); clearTimeout(timer); resolve(null); }
+    });
+  }
+  // Tell the server when the panel is shown or hidden (it watches the selection only while shown), and keep the
+  // connection warm: at least every 30 s.
+  setInterval(() => {
+    if (!live.open) return;
+    const v = panelVisible();
+    if (v !== live.vis || Date.now() - (live.visAt || 0) > 30000) {
+      live.vis = v; live.visAt = Date.now();
+      try { live.ws.send(JSON.stringify({ type: 'visible', on: v })); } catch (e) {}
+    }
+  }, 1000);
+  if ('WebSocket' in window) connectLive(); else startEventStream();
+})();
+</script>
+<script src="/flynn/glass.js"></script>
+</body>
+</html>

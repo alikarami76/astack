@@ -1,0 +1,1 @@
+{"tool": "~/.config/quorra/jira_tool.py", "python": "python3", "project": "PROJ", "transitions": {"start": "In Progress", "review": "In Review"}}

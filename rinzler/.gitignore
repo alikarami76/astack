@@ -1,0 +1,27 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+kb/kb.sqlite
+kb/kb.sqlite-*
+# Run folders: track the record and the small reports, never screenshots, traces, videos or raw outputs.
+runs/*/*
+!runs/*/run.json
+!runs/*/traceability.md
+!runs/*/kb_batch.json
+!runs/*/evals/
+runs/*/evals/*
+!runs/*/evals/*-report.md
+!runs/*/datasim/
+runs/*/datasim/*
+!runs/*/datasim/*.md
+!runs/*/ai-eval/
+runs/*/ai-eval/*
+!runs/*/ai-eval/report.md
+!runs/*/bugs/
+runs/*/bugs/*
+!runs/*/bugs/*.md
+!runs/*/bugs/*.json
+!runs/*/evidence/
+runs/*/evidence/*
+!runs/*/evidence/*.txt

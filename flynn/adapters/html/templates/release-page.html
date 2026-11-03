@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[نام قابلیت] منتشر شد</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- editorial release page. 
+     Section order: hero, hero shot, why, one section per project (explanation, then its screenshot, then the next
+     point), tour of the remaining screens, one team-impact table, QA, results, next steps and links, FAQ, footer.
+     Every block that should become an email PNG carries data-shot. Blanks stay in [brackets].
+     Components and rules: adapters/html/components.md. -->
+
+<header class="topbar">
+  <div class="wordmark">فروشگاه نمونه</div>
+  <div class="meta">فروشگاه نمونه · تیم محصول · [تاریخ انتشار]</div>
+</header>
+
+<main>
+
+<div class="col hero" data-shot="hero">
+  <div class="tags"><span class="tag red">انتشار محصول</span><span class="tag">[حوزه]</span></div>
+  <h1>[نام قابلیت]<br>منتشر شد</h1>
+  <p class="lead">[دو جمله: چه چیزی حالا ممکن است و چرا برای خواننده مهم است.]</p>
+  <div class="values">
+    <div class="value"><div class="k">برای [مخاطب]</div><h3>[ارزش در چند کلمه]</h3><p>[یک یا دو جمله]</p></div>
+    <div class="value"><div class="k">برای [مخاطب]</div><h3>[ارزش در چند کلمه]</h3><p>[یک یا دو جمله]</p></div>
+    <div class="value"><div class="k">برای [مخاطب]</div><h3>[ارزش در چند کلمه]</h3><p>[یک یا دو جمله]</p></div>
+  </div>
+</div>
+<div class="wide hero-shot" data-shot="hero-shot">
+  <figure><div class="shot"><img src="img/crop-[hero].png" alt="[توضیح تصویر]"></div><figcaption><b>[عنوان تصویر].</b> [آنچه در تصویر دیده می‌شود.]</figcaption></figure>
+</div>
+
+<section class="col" data-shot="why">
+  <h2>چرا این تغییر لازم بود؟</h2>
+  <p class="intro">[یک جمله]</p>
+  <div class="problems">
+    <div class="problem"><div class="n">۰۱</div><div><h4>[مشکل]</h4><p>[شواهد با عدد]</p></div></div>
+  </div>
+</section>
+
+<section class="col" data-shot="p1">
+  <div class="sec-label">پروژهٔ ۱</div>
+  <h2>[نام پروژه]</h2>
+  <p class="intro">[یک جمله دربارهٔ اینکه چه ساخته شده]</p>
+  <h3>[مفهوم اول]</h3>
+  <p>[توضیح] <span class="nw">[کلمه]<span class="mk">۱</span>.</span></p>
+</section>
+<div class="wide" data-shot="p1-shot1">
+  <figure>[markup from crops.py]</figure>
+</div>
+<div class="col" data-shot="p1-more">
+  <ol class="steps">
+    <li><b>[گام]</b>[توضیح کوتاه]</li>
+  </ol>
+  <div class="example">
+    <div class="k">مثال · اعداد فرضی‌اند</div>
+    <h4>[عنوان مثال]</h4>
+    <p>[مثال کار‌شده]</p>
+  </div>
+  <div class="note"><b>نکته:</b> [فقط اگر نکتهٔ تازه‌ای هست]</div>
+</div>
+
+<section class="wide" data-shot="tour">
+  <div class="col">
+    <div class="sec-label">تور</div>
+    <h2>[بقیهٔ صفحه]</h2>
+    <p class="intro">[منبع تصاویر و اینکه اعداد نمونه‌اند]</p>
+  </div>
+  <div class="tour-item">[markup from crops.py]
+    <div class="cap"><h4><span class="num">۰۱</span>[عنوان]</h4><p>[توضیح] <span class="nw">[کلمه]<span class="mk">۱</span>.</span></p></div></div>
+</section>
+
+<section class="mid" data-shot="teams">
+  <h2>برای هر تیم چه تغییری می‌کند</h2>
+  <table class="teams">
+    <tr><th></th><th>[پروژهٔ ۱]</th><th>[پروژهٔ ۲]</th></tr>
+    <tr><td>[تیم]</td><td>[اثر]</td><td>[اثر]</td></tr>
+  </table>
+</section>
+
+<section class="col" data-shot="qa">
+  <h2>آزمون پیش از انتشار</h2>
+  <div class="stats">
+    <div class="stat"><div class="big">[عدد]</div><p>[معنی عدد]</p></div>
+    <div class="stat"><div class="big">[عدد]</div><p>[معنی عدد]</p></div>
+  </div>
+  <h3>این اعداد چه چیزی را نشان نمی‌دهند</h3>
+  <ul><li>[محدودیت]</li></ul>
+</section>
+
+<section class="col" data-shot="results">
+  <h2>نتایج پس از انتشار</h2>
+  <table class="num">
+    <tr><th>شاخص</th><th>قبل</th><th>بعد</th><th>تغییر</th><th>اطمینان</th></tr>
+    <tr><td>[شاخص]</td><td class="blank">[x]</td><td class="blank">[x]</td><td class="blank">[x]</td><td class="blank">[x]</td></tr>
+  </table>
+</section>
+
+<section class="col" data-shot="next">
+  <h2>قدم‌های بعدی</h2>
+  <div class="next">
+    <div class="card"><div class="k">[برچسب]</div><h4>[قدم بعدی محصول]</h4><p>[توضیح]</p><div class="owner">مسئول: [نام] · زمان: [تاریخ]</div></div>
+  </div>
+  <h3>لینک‌ها</h3>
+  <ul class="links"><li><a href="#">[سند]</a><span>[منبع]</span></li></ul>
+</section>
+
+<section class="col" data-shot="faq">
+  <h2>سؤال‌های پرتکرار</h2>
+  <div class="faq"><div class="q"><h4>[سؤال]</h4><p>[جواب]</p></div></div>
+</section>
+
+<footer class="footer">
+  <div><div class="name">[نام]</div><div class="role">[سمت] · [واحد] · [تیم]</div></div>
+  <div class="sig">فروشگاه نمونه · تیم محصول</div>
+</footer>
+
+</main>
+</body>
+</html>

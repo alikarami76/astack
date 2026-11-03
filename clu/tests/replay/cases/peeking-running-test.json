@@ -1,0 +1,4 @@
+{"id": "peeking-running-test", "source_session": "causal design 2026-09-29",
+ "prompt": "Our GrowthBook test hit p = 0.03 on day 3 of a planned 14-day run. Can we stop and ship?",
+ "must": ["peek|stopping rule|sequential|planned (duration|horizon)|false positive"],
+ "must_not": ["yes, (you can|ship)"]}

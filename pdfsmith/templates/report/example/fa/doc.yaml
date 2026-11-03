@@ -1,0 +1,14 @@
+template: report
+theme: neutral-fa
+name: sample-report-fa
+lang: fa
+meta:
+  title: بازبینی فصلی قیمت‌گذاری
+  subtitle: گزارش نمونه‌ای که pdfsmith ساخته است
+  author: تیم قیمت‌گذاری و پروموشن
+  date: 2026-09-30
+cover: true
+toc: true
+header: "{title}"
+footer: "{page} / {pages}"
+content: content.md

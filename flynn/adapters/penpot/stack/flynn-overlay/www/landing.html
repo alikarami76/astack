@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>flynn desk</title>
+<meta name="description" content="flynn desk is a design app with an AI designer inside.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/svg+xml" href="/flynn/favicon.svg">
+<link rel="stylesheet" href="/flynn/landing.css">
+<script>
+  // Deep links (invites, password recovery, email verification) live in the URL hash, which the server never sees.
+  // Anything that arrives with one goes straight to the app.
+  if (location.hash.indexOf('#/') === 0) location.replace('/?app=1' + location.hash);
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <a class="brand" href="/" aria-label="flynn desk home">
+    <img src="/flynn/favicon.svg" width="30" height="30" alt="">
+    <span>flynn desk</span>
+  </a>
+  <nav aria-label="Page">
+    <a class="nav-link" href="#features">What it does</a>
+    <a class="nav-link" href="#ai">Use flynn's AI</a>
+    <a class="btn btn-ghost" href="/?app=1#/auth/login">Sign in</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Design app with an AI designer inside</p>
+      <h1>Design with a teammate who never leaves the canvas.</h1>
+      <p class="lead">flynn desk is where your team designs, writes and keeps its design systems. flynn, the AI designer, works right beside you on the same canvas.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="/?app=1#/auth/login">Sign in</a>
+        <a class="btn btn-ghost" href="#ai">Use flynn's AI</a>
+      </div>
+      <p class="fine">Accounts are created for your team. Ask your admin if you cannot sign in.</p>
+    </div>
+
+    <div class="stage" aria-hidden="true">
+
+      <div class="app">
+        <div class="app-bar"><i></i><i></i><i></i><b>Checkout redesign</b></div>
+        <div class="app-body">
+          <div class="app-layers">
+            <span class="on">Frames</span><span>Cart</span><span>Payment</span><span>Receipt</span><span>Components</span>
+          </div>
+          <div class="app-canvas">
+            <div class="frame f1"><em></em><em class="w"></em><em class="s"></em><u></u></div>
+            <div class="frame f2"><em></em><em class="s"></em><em class="w"></em><em class="s"></em><u></u></div>
+            <div class="frame f3"><em class="w"></em><em></em><u></u></div>
+            <div class="sel"></div>
+          </div>
+          <div class="app-chat">
+            <div class="tabs"><span>Design</span><span class="on">flynn</span></div>
+            <p class="you">Make the payment step calmer and fix the spacing.</p>
+            <p class="bot">Done. I used your 8px grid, merged two button styles and kept the brand colors.</p>
+            <div class="input">Ask flynn&hellip;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ai" class="section ai" aria-labelledby="ai-title">
+    <div class="ai-box">
+      <h2 id="ai-title">Use flynn's AI</h2>
+      <p>flynn's AI runs on your own computer, with your own Claude account. This one command installs the flynn agent, and Claude Code too if you don't have it yet.</p>
+      <div class="cmd">
+        <label class="sr" for="cmd">Install command</label>
+        <code id="cmd" tabindex="0">curl -fsSL https://your-server/flynn/agent/install.sh | bash</code>
+        <button id="copy" class="btn btn-primary" type="button"><span id="copy-label">Copy</span></button>
+      </div>
+      <p class="fine">Paste it into Terminal. Then sign in and open <a href="/flynn/agent/connect">Connect flynn</a> to link the agent to your account.</p>
+      <p id="copy-status" class="sr" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section id="features" class="section" aria-labelledby="f-title">
+    <h2 id="f-title">Everything a design team needs, in one place</h2>
+    <ul class="grid">
+      <li class="card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/><path d="M7 13l3-3 3 3 2-2 2 2"/></svg>
+        <h3>Designs on the canvas</h3>
+        <p>Draw, lay out and prototype on a fast canvas. Ask flynn to build a screen, tidy a layout or try another direction, and watch it happen.</p>
+      </li>
+      <li class="card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>
+        <h3>Documents</h3>
+        <p>Write letters, release notes and reports as pages, laid out with the same design system as your screens, then export them.</p>
+      </li>
+      <li class="card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="4"/><rect x="13" y="13" width="8" height="8" rx="1.5"/><path d="M4 21l4-6 4 6z"/></svg>
+        <h3>Learned design systems</h3>
+        <p>flynn reads your existing designs and learns your colors, type, spacing and components, then follows them and flags what breaks them.</p>
+      </li>
+      <li class="card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M12 7.5v4M12 11.5H5.5v4M12 11.5h6.5v4"/></svg>
+        <h3>Organizations</h3>
+        <p>Group teams under one organization. Shared fonts and design system libraries reach every team, and owners can manage access in one place.</p>
+      </li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot">
+  <a class="brand small" href="/"><img src="/flynn/favicon.svg" width="22" height="22" alt=""><span>flynn desk</span></a>
+  <a class="nav-link" href="/?app=1#/auth/login">Sign in</a>
+</footer>
+
+<script src="/flynn/landing.js"></script>
+</body>
+</html>

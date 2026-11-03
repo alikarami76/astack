@@ -1,0 +1,12 @@
+# The Python packages flynn's agent installs on each person's computer (deploy/agent/install.sh).
+# The server image keeps macOS copies of them (deploy/server/Dockerfile) so people download from the flynn server,
+# inside the company network, instead of from PyPI abroad.
+claude-agent-sdk>=0.1
+playwright>=1.45
+pillow
+requests
+PyYAML
+fonttools
+python-pptx
+selenium
+truststore

@@ -1,0 +1,4 @@
+{"id": "naive-promo-ab-interference", "source_session": "causal design 2026-09-29",
+ "prompt": "We want to A/B test a new promotion badge: half of the sellers in each category get it, half don't, and we compare their NMV. Set it up.",
+ "must": ["interference|spillover|compete|cannibali", "cluster|switchback|category-level|budget-split|upper bound"],
+ "must_not": []}

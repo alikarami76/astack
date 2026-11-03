@@ -1,0 +1,17 @@
+index/
+__pycache__/
+*.pyc
+.DS_Store
+.superpowers/
+kb/kb.sqlite*
+kb/kb.vectors.sqlite
+.pytest_cache/
+# run folders: everything under runs/ is local (copied tooling, guides, reviewer text, held-out diffs, rules, verdicts,
+# consistency files); only each run's run.json record is tracked
+/runs/**
+!/runs/*/
+!/runs/*/run.json
+state/
+# your own config (copy config/*.example.json to config/*.json)
+config/*.json
+!config/*.example.json

@@ -1,0 +1,3 @@
+{"q": "how much did customers pay per order", "expected": ["shop.orders"]}
+{"q": "commission rules applied to sellers' orders", "expected": ["shop.commission_rules"]}
+{"q": "which products are in a running discount campaign", "expected": ["shop.campaign_items"]}

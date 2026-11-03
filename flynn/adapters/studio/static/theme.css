@@ -1,0 +1,178 @@
+/* flynn Studio theme: flynn desk's "glass" look (adapters/penpot/stack/flynn-overlay/www/tron.css, approved by the user
+   on 2026-10-04), as tokens shared by Home, the run canvas, the chat and Settings.
+
+   - Glass: calm, cool near-black surfaces with one soft top sheen. Blur only on small floating surfaces.
+   - Rim light: edges are lit by an even 1px ring; hover brightens it; selection adds a small halo.
+   - Type: no glowing text. Small uppercase labels are tracked and grey; selected text is pale ice;
+     the light blue is for light (focus, selection, the one primary action), not for paragraphs.
+   - Contrast holds on budget panels: surface steps of ~8 levels, secondary text above 7:1.
+   - Performance: static paints only (gradients, box-shadows); no animation loops, no filters on large areas. */
+@font-face { font-family: "Geist"; src: url("/static/geist.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("/static/geist-mono.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "your company"; src: url("/static/vazirmatn-variable.woff2") format("woff2"); font-weight: 100 1000; font-display: swap; }
+
+:root {
+  color-scheme: dark;
+  /* glass surfaces, darkest to raised */
+  --g0: #0b0e13;          /* page, canvas */
+  --g1: #10151b;          /* bars, panels */
+  --g2: #141a21;          /* cards, inputs */
+  --g3: #1c232c;          /* hover, raised controls */
+  --g4: #2a3541;          /* pressed, strong hairline */
+  --sheen: linear-gradient(180deg, rgba(200, 235, 255, .035) 0, transparent 7rem);
+
+  /* text */
+  --ink: #eef6fb;         /* headings, primary text */
+  --text: #c9d4dd;        /* body */
+  --muted: #aab7c4;       /* secondary (7:1 on --g1) */
+  --faint: #7d8a97;       /* tertiary, placeholders */
+
+  /* light */
+  --light: #8fe3ff;       /* the lit accent */
+  --light-2: #b5ecff;     /* hover: brighter, not darker */
+  --ice: #e4f7ff;         /* selected text */
+  --halo: rgba(84, 200, 255, .30);
+  --halo-faint: rgba(84, 200, 255, .14);
+  --edge: rgba(150, 226, 255, .26);       /* resting lit hairline */
+  --line: rgba(170, 200, 225, .10);       /* quiet hairline */
+  --line-2: rgba(170, 200, 225, .17);     /* stronger quiet hairline */
+  --tint: rgba(170, 228, 255, .08);       /* hover fill */
+  --tint-lit: rgba(143, 227, 255, .12);   /* selected fill */
+
+  /* rim light */
+  --rim: inset 0 0 0 1px rgba(150, 226, 255, .14);
+  --rim-hover: inset 0 0 0 1px rgba(150, 226, 255, .32), 0 0 8px rgba(84, 200, 255, .06);
+  --rim-lit: inset 0 0 0 1px rgba(165, 232, 255, .62), 0 0 0 .5px rgba(165, 232, 255, .32), 0 0 12px rgba(84, 200, 255, .18);
+  --lift: 0 18px 48px -20px rgba(0, 0, 0, .75);
+
+  /* states */
+  --amber: #f3b26b;  --amber-dim: rgba(243, 178, 107, .12);
+  --green: #5fdcab;  --green-dim: rgba(95, 220, 171, .12);
+  --red: #ff8b8b;    --red-dim: rgba(255, 139, 139, .12);
+
+  /* motion */
+  --glide: cubic-bezier(.32, 1.28, .45, 1);
+  --ease: cubic-bezier(.2, .8, .2, 1);
+
+  /* shape and type */
+  --r-s: 6px; --r-m: 10px; --r-l: 14px;
+  --sans: "Geist", "your company", system-ui, -apple-system, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --fa: "your company", "Geist", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { font-family: var(--sans); color: var(--text); background: var(--g0); font-size: 13.5px; line-height: 1.5;
+  font-feature-settings: "ss01", "cv11"; }
+a { color: inherit; text-decoration: none; }
+:where(a, button) { -webkit-tap-highlight-color: transparent; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+::selection { background: rgba(143, 227, 255, .22); color: var(--ice); }
+:focus-visible { outline: 1px solid var(--light); outline-offset: 2px; border-radius: var(--r-s); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--g4); border-radius: 10px; border: 3px solid var(--g1); }
+::-webkit-scrollbar-track { background: transparent; }
+
+.fa { direction: rtl; unicode-bidi: plaintext; text-align: right; font-family: var(--fa); }
+bdi.fa, .fa-run { unicode-bidi: isolate; font-family: var(--fa); }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: .92em; }
+
+/* small uppercase label: tracked, calm grey, never mono */
+.label { font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- controls ---------- */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent;
+  border-radius: var(--r-s); padding: 6px 12px; font-weight: 500; color: var(--text); box-shadow: var(--rim);
+  transition: box-shadow .22s var(--ease), color .2s var(--ease), background-color .22s var(--ease), transform .32s var(--glide); white-space: nowrap; }
+/* hover sheen: a soft top light that fades in (an overlay, so it animates; gradients themselves cannot) */
+.btn::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, rgba(210, 240, 255, .10), transparent 70%); transition: opacity .24s var(--ease); }
+.btn:hover::before { opacity: 1; }
+.btn:hover { box-shadow: var(--rim-hover); color: var(--ink); background-color: var(--tint); }
+.btn:active:not(:disabled) { background-color: var(--tint-lit); transform: scale(.97); transition-duration: .09s; }
+.btn:focus-visible { outline: 1px solid var(--light); outline-offset: 2px; box-shadow: var(--rim-lit); }
+.btn.primary { color: #06212b; background: var(--light); box-shadow: 0 0 0 1px rgba(181, 236, 255, .6), 0 0 16px -4px var(--halo); font-weight: 600; }
+.btn.primary:hover { background-color: var(--light-2); color: #06212b; }
+.btn.primary::before { background: linear-gradient(180deg, rgba(255, 255, 255, .38), transparent 70%); }
+.btn.ghost { box-shadow: none; color: var(--muted); }
+.btn.ghost:hover { color: var(--ink); background-color: var(--tint); box-shadow: none; }
+.btn.ghost:focus-visible { box-shadow: var(--rim-lit); }
+.btn.danger { color: var(--red); }
+.btn.sm { padding: 4px 9px; font-size: 12.5px; }
+.btn:disabled { opacity: .45; cursor: default; box-shadow: var(--rim); background: transparent; }
+.btn:disabled::before { opacity: 0; }
+
+.seg { position: relative; display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--r-m); background: var(--g2); box-shadow: var(--rim); }
+.seg button { position: relative; z-index: 1; border: 0; background: transparent; padding: 5px 11px; font-weight: 500; color: var(--muted); border-radius: 7px;
+  transition: background-color .2s var(--ease), color .2s var(--ease), box-shadow .22s var(--ease), transform .32s var(--glide); }
+.seg button:hover { color: var(--ink); }
+.seg button:active { transform: scale(.97); transition-duration: .09s; }
+.seg button.on { color: var(--ice); background: var(--tint-lit); box-shadow: inset 0 0 0 1px rgba(165, 232, 255, .42); }
+/* a glass pill that glides under the active tab (placed by glass.js; without it the .on button paints its own pill) */
+.seg-ind { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 0; pointer-events: none; opacity: 0; border-radius: 7px;
+  background: linear-gradient(180deg, rgba(200, 235, 255, .08), transparent 80%), var(--g3);
+  box-shadow: inset 0 0 0 1px rgba(165, 232, 255, .34), 0 1px 0 rgba(200, 235, 255, .06) inset; }
+.seg-ind.ready { opacity: 1; transition: transform .3s var(--ease), width .3s var(--ease), height .3s var(--ease); }
+.has-ind > button.on, .has-ind > button.on:hover { background: transparent; box-shadow: none; }
+.has-ind > button { position: relative; z-index: 1; }
+
+.field { width: 100%; border: 0; background: var(--g2); color: var(--ink); border-radius: var(--r-s); padding: 8px 11px; outline: none;
+  box-shadow: var(--rim); transition: box-shadow .14s var(--ease); }
+.field::placeholder { color: var(--faint); }
+.field:hover { box-shadow: var(--rim-hover); }
+.field:focus { box-shadow: var(--rim-lit); }
+
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; line-height: 1; padding: 4px 8px;
+  border-radius: 999px; color: var(--muted); background: rgba(170, 200, 225, .07); white-space: nowrap; }
+.chip.lit { color: var(--ice); background: var(--tint-lit); box-shadow: inset 0 0 0 1px rgba(165, 232, 255, .30); }
+.chip.amber { color: var(--amber); background: var(--amber-dim); }
+.chip.green { color: var(--green); background: var(--green-dim); }
+.chip.red { color: var(--red); background: var(--red-dim); }
+.chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.kbd { font-family: var(--mono); font-size: 10.5px; color: var(--muted); padding: 1px 5px; border-radius: 4px; box-shadow: var(--rim); }
+
+/* glass panel and card */
+.glass { background: var(--sheen), linear-gradient(180deg, var(--g1), var(--g0)); }
+.card-g { background: var(--g2); border-radius: var(--r-m); box-shadow: var(--rim); }
+
+/* floating surface: the only place blur is allowed */
+.float { background: rgba(16, 21, 27, .86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-radius: var(--r-m); box-shadow: var(--rim), var(--lift); }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); padding: 10px 16px; z-index: 60; font-weight: 500;
+  max-width: 80vw; color: var(--ink); background: rgba(16, 21, 27, .92); backdrop-filter: blur(10px); border-radius: var(--r-m);
+  box-shadow: var(--rim-lit), var(--lift); animation: toast-in .26s var(--glide); }
+.toast.err { box-shadow: inset 0 0 0 1px rgba(255, 139, 139, .5), var(--lift); }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ---------- page motion: cross-page view transitions with a soft fade and a small rise ---------- */
+@view-transition { navigation: auto; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes page-in { from { opacity: 0; transform: translateY(6px); } }
+::view-transition-group(root) { animation-duration: .26s; animation-timing-function: var(--ease); }
+::view-transition-old(root) { animation: vt-out .14s var(--ease) both; }
+::view-transition-new(root) { animation: vt-in .26s var(--ease) both; }
+/* the rail is named so it stays put across pages: its old and new snapshots swap without a fade */
+::view-transition-group(rail) { animation-duration: 0s; }
+::view-transition-old(rail), ::view-transition-new(rail) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(rail):only-child { animation: vt-out .16s var(--ease) both; }
+::view-transition-new(rail):only-child { animation: vt-in .22s var(--ease) both; }
+/* browsers without view transitions get the same rise on load */
+@supports not (view-transition-name: none) {
+  .railmain > *, .shell, .appshell { animation: page-in .26s var(--ease) both; }
+}
+
+@keyframes pop-in { from { opacity: 0; transform: translateY(4px) scale(.97); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

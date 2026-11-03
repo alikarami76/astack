@@ -1,0 +1,5 @@
+{
+ "project": "PROJ",
+ "issue_type": "Bug",
+ "note": "Set project to your own Jira project key. Rinzler only drafts bugs for this project; filing needs your explicit approval."
+}

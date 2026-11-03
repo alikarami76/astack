@@ -1,0 +1,44 @@
+/* flynn: no Enterprise upsell. The dashboard banner and upgrade prompts are hidden, and the Enterprise
+   popups never show (declutter in inject.js also closes them with their own close button). */
+.main_ui_dashboard_subscription__nitrate-banner,
+.main_ui_dashboard_subscription__dashboard-cta,
+.main_ui_dashboard_subscription__members-cta,
+.main_ui_dashboard_subscription__cta-power-up,
+[class*="main_ui_nitrate_nitrate_form__modal-overlay"],
+[class*="main_ui_nitrate_nitrate_code_activation_modal__modal-overlay"],
+[class*="main_ui_nitrate_nitrate_activation_success_modal__modal-overlay"] { display: none !important; }
+
+/* the flynn disc is its own dark object: no white avatar circle behind it in the dashboard header */
+.main_ui_dashboard_sidebar__organization-penpot-icon { background: transparent !important; }
+
+/* Loading: the flynn disc as white light (loader-disc.svg), in place of Penpot's pencil.
+   Penpot draws the pencil as an inline <svg class="…product_loader__loader">; it is hidden and the disc is drawn
+   just before it, at the same size. The motion lives here, not in the SVG: transform and opacity run on the
+   compositor, so the turn stays smooth even while the app is busy loading. */
+.main_ui_ds_product_loader__loader { display: none !important; }
+:has(> .main_ui_ds_product_loader__loader)::before {
+  content: ""; display: block; flex: none; width: 56px; height: 56px;
+  background: url("/flynn/loader-disc.svg") center / contain no-repeat;
+  will-change: transform, opacity;
+  animation: flynn-disc-turn 2.4s linear infinite, flynn-disc-breathe 3.2s ease-in-out infinite;
+}
+@keyframes flynn-disc-turn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes flynn-disc-breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  :has(> .main_ui_ds_product_loader__loader)::before { animation: flynn-disc-breathe 3.2s ease-in-out infinite; }
+}
+.main_ui_ds_product_loader__file-loading :has(> .main_ui_ds_product_loader__loader)::before,
+.main_ui_ds_product_loader__file-loading:has(> .main_ui_ds_product_loader__loader)::before { width: 96px; height: 96px; margin-bottom: 8px; }
+
+/* The logo: the disc as a picture, the name as real text beside it (brand.py makes the wordmark symbol the disc only). */
+svg:has(> use[href$="#asset-penpot-logo"]), svg:has(> use[href$="#icon-penpot-logo"]) {
+  width: 32px !important; height: 32px !important; flex: none;
+}
+:has(> svg > use[href$="#asset-penpot-logo"]), :has(> svg > use[href$="#icon-penpot-logo"]) {
+  display: inline-flex !important; align-items: center; gap: 10px; text-decoration: none;
+}
+:has(> svg > use[href$="#asset-penpot-logo"])::after, :has(> svg > use[href$="#icon-penpot-logo"])::after {
+  content: "flynn desk";
+  font-family: "worksans", system-ui, sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.01em;
+  line-height: 1; color: #e8f6ff; white-space: nowrap;
+}
