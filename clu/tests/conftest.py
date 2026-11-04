@@ -16,4 +16,5 @@ def kbenv(tmp_path, monkeypatch):
     monkeypatch.setenv("CLU_WRITETHROUGH", "0")
     monkeypatch.setenv("CLU_BACKGROUND_EMBED", "0")
     monkeypatch.setenv("CLU_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("CLU_KEYGRAPH_DB", str(tmp_path / "keygraph" / "keygraph.db"))  # never the private build
     return tmp_path

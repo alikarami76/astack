@@ -29,6 +29,10 @@ Ask, in this order, and skip what you already know:
 
 Then write the problem in one sentence and show it to the user: "**[Who]** needs to **[do what]** when **[situation]**, but today **[obstacle]**, which costs **[cost]**." Ask if it is right. Everything after this is judged against that sentence.
 
+Then add two short parts to `brief.md` (see `$FLYNN/skills/flynn-core/references/ux-thinking.md`, Process techniques):
+- **Job story:** "When [situation], I want to [job], so I can [outcome]." It names the moment and the outcome. If the problem sentence and the job story disagree, ask which one is right.
+- **Flow:** where the user arrives from, what they do, what happens on success and on failure, and where they go next. Ask about any entry point or next step you are guessing; a design that breaks the flow around it is wrong however good the screen is.
+
 ### 2. Challenge the assumptions (`<run>/assumptions.md`)
 List the beliefs the request rests on (usually three to six). For each: the belief, the evidence for it, the evidence against, and how risky it is if wrong (high, medium, low). Typical ones:
 - the problem is in the interface (it may be policy, data quality, or a missing notification);
@@ -48,7 +52,7 @@ Help the user choose fast. For each open choice write one row: the decision, the
 If the user and you still disagree after the evidence, say so once, record their call and your concern in `decisions.md`, and go with their call.
 
 ### 5. Build
-Turn brief, assumptions, chosen direction and decisions into the design contract (flynn-core step 3, `references/design-contract.md`): the problem sentence goes in the goal, the risky assumptions in the risks, the scope cut in out-of-scope, the success measures in acceptance. Show it in full and wait for approval. Then continue with flynn-core from step 4: references, compose (two or three options), the audit loop, review. In flynn desk the options build on the canvas; offer `/prototype` when the flow has more than one screen. When the code side matters, offer `/quorra` to build it.
+Turn brief, assumptions, chosen direction and decisions into the design contract (flynn-core step 3, `references/design-contract.md`): the problem sentence goes in the goal, the job story and the flow go in their own sections, the risky assumptions in the risks, the scope cut in out-of-scope, the success measures in acceptance. Show it in full and wait for approval. Then continue with flynn-core from step 4: references, compose (two or three options), the audit loop, review. In flynn desk the options build on the canvas; offer `/prototype` when the flow has more than one screen. When the code side matters, offer `/quorra` to build it.
 
 ## What not to do
 

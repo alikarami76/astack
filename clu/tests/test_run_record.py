@@ -143,3 +143,53 @@ def test_ingest_rejects_invalid_and_records_other_kinds(kbenv, tmp_path):
     assert [k["id"] for k in rj["kb_writes"]] == ["fac_1", "les_2"] and rj["proposals"][0]["id"] == "fix-x"
     assert rj["challenges"][0]["blockers"] == 1
     assert [s["name"] for s in rj["subagents"]] == ["clu-challenger", "clu-curator"]
+
+
+def _keygraph_build(tmp_path):
+    """A one-table keygraph build in tmp, or skip when this tree has no keygraph checkout (the public export)."""
+    if not run_record.KEYGRAPH_SRC.exists():
+        pytest.skip("no keygraph checkout next to clu")
+    import sys
+    sys.path.insert(0, str(run_record.KEYGRAPH_SRC))
+    from keygraph.cli import run_pipeline
+    from keygraph.model import Column, Index, Schema, Table
+    s = Schema()
+    s.add(Table("shopdb", "orders", [Column("id", "int", position=1), Column("status", "int", position=2)],
+                [Index("PRIMARY", ["id"], True, True)]))
+    out = tmp_path / "keygraph"
+    run_pipeline(s, out, verbose=False)
+    return out / "keygraph.db"
+
+
+def _runner(d, tmp_path, status="ok"):
+    (d / "queries" / "paid.sql").write_text("SELECT COUNT(*) FROM orders WHERE status = 3\n")
+    (d / "helpers").mkdir(exist_ok=True)
+    p = d / "helpers" / "runner-paid.json"
+    p.write_text(json.dumps({"kind": "runner_result", "name": "paid", "status": status, "source": "mysql:shopdb",
+                             "sql_file": "queries/paid.sql", "result_file": None, "rows": 1, "capped": False,
+                             "runtime_s": 0.25, "issues": None}))
+    return p
+
+
+def test_ingest_logs_the_runner_query_into_keygraph(kbenv, tmp_path, capsys):
+    db = _keygraph_build(tmp_path)
+    d = run_record.new("paid", "lookup", "How many paid orders?", runs_dir=tmp_path / "runs", tier="quick")
+    contract = d / "contract.md"
+    contract.write_text(contract.read_text().replace("- **Question (user's words):**", "- **Question (user's words):** paid orders today", 1))
+    run_record.ingest(d, _runner(d, tmp_path))
+    assert "keygraph: logged 1 query" in capsys.readouterr().err
+    from keygraph import queries as kq
+    top = kq.top(db)["queries"][0]
+    assert (top["context"], top["runs"], top["median_ms"], top["tables"]) == ("paid orders today", 1, 250.0, ["shopdb.orders"])
+    assert kq.show(db, top["fp"])["runs_list"][0]["by"] == "clu"
+
+
+def test_ingest_never_fails_on_the_query_log(kbenv, tmp_path, capsys, monkeypatch):
+    d = run_record.new("x", "lookup", "q", runs_dir=tmp_path / "runs", tier="quick")
+    run_record.ingest(d, _runner(d, tmp_path))  # no build in this test's keygraph folder
+    assert "keygraph: no build" in capsys.readouterr().err
+    monkeypatch.setenv("CLU_KEYGRAPH_LOG", "0")
+    d2 = run_record.new("y", "lookup", "q", runs_dir=tmp_path / "runs", tier="quick")
+    run_record.ingest(d2, _runner(d2, tmp_path, status="blocked"))
+    assert "query log off" in capsys.readouterr().err
+    assert json.loads((d2 / "run.json").read_text())["queries"][0]["id"] == "paid"

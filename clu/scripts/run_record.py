@@ -11,6 +11,7 @@ import argparse
 import datetime as _dt
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -30,6 +31,9 @@ TIERS = ("quick", "standard", "deep")
 VERIFY_RESULTS = ("sustained", "partial", "refuted", "not_run")
 RECORD_TYPES = ("analysis", "causal", "experiment", "dashboard")  # runs that need methods.md + reproduce.ipynb
 TEMPLATE = REPO / "skills/clu-core/references/contract-template.md"
+KEYGRAPH_SRC = REPO.parent / "keygraph" / "src"  # the keygraph checkout next to clu, when there is one
+KEYGRAPH_DB = REPO / "kb" / "keygraph" / "keygraph.db"  # the private build; override with CLU_KEYGRAPH_DB
+DIALECT = {"mysql": "mysql", "clickhouse": "clickhouse", "ods": "tsql"}
 
 
 def _now() -> str:
@@ -179,6 +183,7 @@ def ingest(run_dir, path) -> str:
         rj.setdefault("queries", []).append({"at": _now(), "id": obj["name"], "source": obj["source"],
                                              "runtime_s": obj["runtime_s"], "rows": obj["rows"],
                                              "capped": obj["capped"], "file": obj["sql_file"]})
+        print(_log_query(d, obj, rj), file=sys.stderr)
     elif kind == "verification":
         claims_p = d / "verify" / "claims.json"
         if not claims_p.exists():
@@ -199,6 +204,50 @@ def ingest(run_dir, path) -> str:
             rj.setdefault("proposals", []).append({"at": _now(), "id": s_})
     _save(d, rj)
     return helper_output.summary(obj, extra)
+
+
+def _business_question(d: Path, rj: dict) -> str:
+    """The contract's "Question (user's words)" line, else the run's question."""
+    c = d / "contract.md"
+    if c.exists():
+        m = re.search(r"^- \*\*Question \(user's words\):\*\*[ \t]*(.+)$", c.read_text(encoding="utf-8"), re.M)
+        if m and m.group(1).strip():
+            return m.group(1).strip()
+    return rj.get("question") or ""
+
+
+def _log_query(d: Path, obj: dict, rj: dict) -> str:
+    """Log a runner's SQL into the keygraph query log (keygraph queries add). Never raises; returns one status line.
+    Off with CLU_KEYGRAPH_LOG=0; a missing build or a missing keygraph checkout only skips."""
+    if os.environ.get("CLU_KEYGRAPH_LOG", "1") == "0":
+        return "keygraph: query log off"
+    db = Path(os.environ.get("CLU_KEYGRAPH_DB") or KEYGRAPH_DB)
+    if not db.exists():
+        return f"keygraph: no build at {db}, query not logged"
+    try:
+        if KEYGRAPH_SRC.exists() and str(KEYGRAPH_SRC) not in sys.path:
+            sys.path.insert(0, str(KEYGRAPH_SRC))
+        from keygraph import queries as kq
+    except ImportError:
+        return "keygraph: not installed, query not logged"
+    try:
+        files = obj["sql_file"] if isinstance(obj["sql_file"], list) else [obj["sql_file"]]
+        chunked = len(files) > 1
+        source = obj["source"]
+        dialect = DIALECT.get(source.split(":", 1)[0])
+        error = None if obj.get("status", "ok") == "ok" else (obj.get("issues") or "blocked")
+        context = _business_question(d, rj)
+        fps = []
+        for f in files:
+            p = Path(f) if Path(f).is_absolute() else d / f
+            r = kq.add(db, p.read_text(encoding="utf-8"), source,
+                       ms=None if chunked or obj.get("runtime_s") is None else obj["runtime_s"] * 1000,
+                       rows=None if chunked else obj.get("rows"), context=context, tags=[rj["run_id"], obj["name"]],
+                       by="clu", error=error, dialect=dialect)
+            fps.append(r["fp"])
+        return f"keygraph: logged {len(fps)} quer{'y' if len(fps) == 1 else 'ies'} ({', '.join(sorted(set(fps)))})"
+    except Exception as e:  # noqa: BLE001 - logging must never block ingest
+        return f"keygraph: query not logged ({type(e).__name__}: {str(e)[:120]})"
 
 
 def _git_commit(run_dir: Path, run_id: str) -> str:

@@ -19,6 +19,7 @@ flynn detects its mode itself: if it can call AskUserQuestion it is in direct mo
 | `flynn-renderer` | sonnet | Runs adapters, returns screenshots |
 | `flynn-critic` | sonnet (opus for the final verdict) | Design review against contract, references and rubric |
 | `flynn-checker` | haiku | Mechanical checks |
+| `flynn-fresh-eyes` | sonnet | First-impression review from screenshots only, with no contract |
 | `flynn-curator` | haiku | Lessons, taste notes, design records, proposals |
 
 The lead preloads `flynn-core` (the protocol). Specialists write to the run folder and return at most 10 lines.

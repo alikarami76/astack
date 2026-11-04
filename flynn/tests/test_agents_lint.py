@@ -6,7 +6,8 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 FLYNN = "$HOME/agent-stack/flynn"
 MODELS = {"flynn": "opus", "flynn-scout": "sonnet", "flynn-librarian": "sonnet", "flynn-composer": "sonnet",
-          "flynn-renderer": "sonnet", "flynn-critic": "sonnet", "flynn-checker": "haiku", "flynn-curator": "haiku"}
+          "flynn-renderer": "sonnet", "flynn-critic": "sonnet", "flynn-checker": "haiku", "flynn-curator": "haiku",
+          "flynn-fresh-eyes": "sonnet"}
 
 
 def fm(p: Path) -> dict:
@@ -77,7 +78,7 @@ def test_rubric_lists_ai_aesthetic_traits_and_contract_has_states():
 
 TOOLS = {"flynn-critic": "Read, Write, Bash, Grep, Glob", "flynn-composer": "Read, Write, Edit, Bash, Grep, Glob",
          "flynn-checker": "Read, Write, Bash, Grep, Glob", "flynn-librarian": "Read, Write, Bash, Grep, Glob",
-         "flynn-curator": "Read, Write, Bash, Grep, Glob"}
+         "flynn-curator": "Read, Write, Bash, Grep, Glob", "flynn-fresh-eyes": "Read, Write, Bash"}
 
 
 def test_helper_agents_pin_tool_lists():

@@ -12,13 +12,15 @@ color: gray
 
 **Checks.**
 1. Validator: `python3 "$FLYNN/scripts/fdoc.py" validate "<file>" --json` for each document. Record every error and warning.
-2. States: read the "Required states" list in `contract.md`, and check that a document or named frame exists for each state and option.
+2. States: read the "Required states" list or table in `contract.md` (skip rows marked n/a), and check that a document or named frame exists for each state and option.
 3. Direction and language: for a Persian design, every document must have `"dir": "rtl"` and `"lang": "fa"`.
 4. Placeholder text: search every `text` and prop value for `lorem`, `ipsum`, `Item 1`, `Title`, `Label`, `TODO`, `xxx`, and text in the wrong language.
 5. Any check script present in `$FLYNN/scripts/checks/` (for example pixel or structure diffs). Run each as its header describes.
 6. HTML pages: `python3 "$FLYNN/scripts/lint_page.py" "<run>/page/index.html" --json`. Its rules each come from a lesson the user taught: render (font, images, overflow, screenshot legibility), off-token colours, off-scale type, contrast, Persian typography (glued markers, «.» decimals, no ss01 in sentences, signed numbers in an LTR isolate, no Latin-first headings, no «~»), and structure (no repeated blocks, at most one note per block, no eyebrow that repeats its heading, leads of at most two sentences, labelled examples). Copy each failed rule into `checks-<round>.json` with its findings: the data-shot block, the path and the text.
 
-**Output:** `<run>/checks-<round>.json`, a list of `{"check", "file", "result": "pass"|"fail", "detail"}`.
+7. Optional accessibility check for HTML pages: `python3 "$FLYNN/scripts/a11y_check.py" "<page>" --json` runs axe-core (WCAG 2.1 A and AA) in Playwright. If it reports `skipped` (axe-core or Playwright is not installed), record the check as `skipped` with its note and move on; never install anything. Record `fail` for serious and critical violations. Violations inside a `data-uikit` component on a kit page come from the component library's own markup: record them with the component name as a note for its developers.
+
+**Output:** `<run>/checks-<round>.json`, a list of `{"check", "file", "result": "pass"|"fail"|"skipped", "detail"}`.
 
 **Rules.** Report only; never fix anything. Never print or write a secret value.
 

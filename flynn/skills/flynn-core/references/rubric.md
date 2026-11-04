@@ -29,6 +29,13 @@ The critic judges every option against every section. A `pass` means a senior pr
 - Icons used as decoration with no meaning; emoji used as icons.
 - Everything centered; a symmetric layout the content does not need.
 - Too many accent colors; color used as the only way to signal state.
+- Structural tells (these are about arrangement, not style, so they apply inside a strict system too):
+  - A nested card: a card or bordered box inside another card. One layer of containment.
+  - An icon tile above every heading, or an icon on every item, carrying no meaning.
+  - Identical treatment for everything: every section, card or row given the same weight, so nothing is more important than anything else.
+  - Numbered steps (1, 2, 3 or 01 / 02 / 03) for things that are not a sequence.
+  - A decorative kicker label: a small label above a heading that only announces or repeats it.
+  - A fake success state: a confirmation ("Saved", "Done successfully") shown with nothing behind it, or before the action could have finished.
 
 ## 5. System fidelity
 - Only library components and tokens; any override is justified in the contract.
@@ -58,3 +65,28 @@ The critic judges every option against every section. A `pass` means a senior pr
 - The title states the takeaway; units and the time period are always shown.
 - Direct labels are used instead of a legend where possible, and one series is highlighted.
 - Axes are honest (bars start at zero), and there is no 3D, no dual axis without a clear reason, and no pie with more than five slices.
+
+## 10. UX and flow
+Judge these with `references/ux-thinking.md` (Floor, Reflex and Polish principles) and the contract's job story, flow and state map.
+For a static page (report, release page, newsletter, deck), judge the items that apply to reading it (job fit, next step, labels, hierarchy, chunking) and mark the rest n/a.
+- Job fit: the design does the job story's job for its persona; the primary action serves that job.
+- Flow continuity: the entry points and the next step in the contract's Flow section are reachable, and the design fits the screens around it.
+- Next step visible: after success the user can see what to do next; no dead-end success state.
+- Error prevention: constraints, defaults and inline validation stop the errors they can (for example an end date before the start date cannot be picked).
+- Error recovery: every error says what went wrong and the fix, and keeps what the user typed.
+- Undo or confirm: every destructive or hard-to-reverse action has a confirm step that names the object and the consequence, or an undo window. A missing one is a Blocker.
+- Feedback for every action: busy while working, then the result in the action's own verb.
+- Recognition over recall: the information needed for each decision is on the same screen; the user never has to remember something from an earlier step.
+- Progressive disclosure: rare options are folded away, and a decision point shows about four choices or fewer.
+- Specific labels: buttons are a verb and an object ("Create discount code"), never "Continue", "Confirm" or "Submit" alone where the object is unclear; the same action keeps the same word through the flow.
+- A way out: cancel, back and clear filters exist wherever the user can get stuck.
+
+**Cognitive-load checklist.** Mark each item pass or fail per option. Four or more fails is a Blocker; two or three is a High finding.
+1. Single focus: the primary job can be done without competing elements pulling attention.
+2. Chunking: information comes in small groups (about four items or fewer per group).
+3. Grouping: related items sit together and unrelated ones apart.
+4. Visual hierarchy: what matters most is obvious at a glance.
+5. One decision at a time: the user is not asked to decide several things at once.
+6. Few choices: about four visible options or fewer at each decision point.
+7. Working memory: nothing must be remembered from a previous screen to act on this one.
+8. Progressive disclosure: complexity appears only when it is needed.
